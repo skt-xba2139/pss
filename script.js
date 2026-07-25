@@ -868,8 +868,8 @@ async function renderHome() {
         (a) => `
     <div class="glass-card announcement-card">
       ${deleteBtnHTML("Announcements", a.id)}
-      <h3 data-editable="announcement-title-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="Title">${a.title}</h3>
-      <p data-editable="announcement-desc-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="Description">${a.description}</p>
+      <h3 data-editable="announcement-title-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="title">${a.title}</h3>
+      <p data-editable="announcement-desc-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="description">${a.description}</p>
       <span class="date-tag">${formatDate(a.date)}</span>
     </div>`
       )
@@ -1097,8 +1097,8 @@ async function renderCarta() {
             ${deleteBtnHTML("Committee", m.editKey)}
             ${imgEditBtnHTML("Committee", m.editKey, "avatar", "Tukar gambar")}
             <img class="org-avatar" src="${m.avatar}" alt="${m.name}">
-            <div class="org-name" data-editable="${m.editKey}-name" data-sheet="Committee" data-row="${m.editKey}" data-col="Name">${m.name}</div>
-            <div class="org-role" data-editable="${m.editKey}-role" data-sheet="Committee" data-row="${m.editKey}" data-col="Role">${m.role}</div>
+            <div class="org-name" data-editable="${m.editKey}-name" data-sheet="Committee" data-row="${m.editKey}" data-col="name">${m.name}</div>
+            <div class="org-role" data-editable="${m.editKey}-role" data-sheet="Committee" data-row="${m.editKey}" data-col="role">${m.role}</div>
           </div>`
           )
           .join("")}
