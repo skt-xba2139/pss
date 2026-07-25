@@ -167,6 +167,32 @@ const MOCK = {
     { id: "w5", name: "Skrin Projektor PSS", qty: "0 / 1 disumbang", progress: 0, image: "https://picsum.photos/seed/wish5/400/300", donated: false },
     { id: "w6", name: "Headphone Pembelajaran", qty: "2 / 10 disumbang", progress: 20, image: "https://picsum.photos/seed/wish6/400/300", donated: false },
   ],
+  settings: {
+    brand_line1: "Pusat Sumber Ibnu Sina",
+    brand_line2: "SK Tangkungon Telupid",
+    brand_line3: "XBA 2139",
+    nav_home_label: "Utama / Buletin",
+    nav_home_icon: "",
+    nav_pustaka_label: "Pustaka Interaktif",
+    nav_pustaka_icon: "",
+    nav_elibrary_label: "E-Library",
+    nav_elibrary_icon: "",
+    nav_leaderboard_label: "Papan Pendahulu",
+    nav_leaderboard_icon: "",
+    nav_carta_label: "Carta Organisasi",
+    nav_carta_icon: "",
+    nav_kalendar_label: "Kalendar Acara",
+    nav_kalendar_icon: "",
+    nav_wakaf_label: "Wakaf & Sumbangan",
+    nav_wakaf_icon: "",
+    page_pustaka_desc: "Terokai koleksi buku popular pilihan Pusat Sumber Sekolah",
+    page_elibrary_desc: "Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran",
+    page_leaderboard_desc: "Top 10 Pembaca Teraktif Pusat Sumber Sekolah",
+    page_carta_desc: "Jawatankuasa Pusat Sumber Sekolah",
+    page_kalendar_desc: "Aktiviti akan datang, borang pendaftaran & peraturan",
+    page_wakaf_desc: "Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber",
+    custom_css: "",
+  },
 };
 
 // ==========================================================================
@@ -562,6 +588,14 @@ function initAdminCRUD() {
       handleLinkEditClick(linkEditBtn);
       return;
     }
+
+    const navIconEditBtn = e.target.closest(".nav-icon-edit-btn");
+    if (navIconEditBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleNavIconEditClick(navIconEditBtn);
+      return;
+    }
   });
 }
 
@@ -637,6 +671,9 @@ function initNavigation() {
 
   navItems.forEach((item) => {
     item.addEventListener("click", (e) => {
+      if (e.target.closest(".nav-icon-edit-btn")) return;
+      const editableTarget = e.target.closest("[data-editable]");
+      if (editableTarget && editableTarget.getAttribute("contenteditable") === "true") return;
       e.preventDefault();
       const target = item.dataset.section;
 
@@ -797,6 +834,21 @@ function wireInlineEditing(container = document) {
       const newValue = el.textContent.trim();
       if (newValue === originalValue) return;
 
+      // Settings-backed elements (branding, nav labels, page descriptions)
+      // are key/value pairs in the Settings sheet, not sheet/row/column
+      // targeted cells — route those through updateSetting instead.
+      if (el.dataset.settingKey) {
+        const result = await postToSheet({ action: "updateSetting", key: el.dataset.settingKey, value: newValue });
+        if (result.status === "ok") {
+          if (isDemo()) MOCK.settings[el.dataset.settingKey] = newValue;
+          SETTINGS[el.dataset.settingKey] = newValue;
+          showToast("Tetapan berjaya dikemas kini.");
+        } else {
+          showToast("Gagal menyimpan tetapan.", "error");
+        }
+        return;
+      }
+
       const payload = {
         action: "update",
         sheet: el.dataset.sheet || "General",
@@ -813,6 +865,125 @@ function wireInlineEditing(container = document) {
         showToast("Gagal menyimpan perubahan.", "error");
       }
     });
+  });
+}
+
+// ==========================================================================
+// SITE SETTINGS — branding, nav labels/icons, page descriptions and custom
+// CSS. Backed by the "Settings" key/value sheet via the generic
+// updateSetting action; SETTINGS holds the current values in memory.
+// ==========================================================================
+
+let SETTINGS = {};
+
+const NAV_SECTIONS = ["home", "pustaka", "elibrary", "leaderboard", "carta", "kalendar", "wakaf"];
+const PAGE_DESC_SECTIONS = ["pustaka", "elibrary", "leaderboard", "carta", "kalendar", "wakaf"];
+
+async function renderSettings() {
+  const fetched = await fetchSheet("Settings", MOCK.settings);
+  // Defensive merge: if the deployed Code.gs is older than this frontend
+  // (Settings not implemented yet, so it comes back as [] instead of an
+  // object) or is just missing a key, fall back to sane defaults instead
+  // of leaving text blank.
+  SETTINGS = Object.assign({}, MOCK.settings, Array.isArray(fetched) ? {} : fetched);
+
+  document.querySelectorAll('[data-setting-key="brand_line1"]').forEach((el) => (el.textContent = SETTINGS.brand_line1));
+  document.querySelectorAll('[data-setting-key="brand_line2"]').forEach((el) => (el.textContent = SETTINGS.brand_line2));
+  document.querySelectorAll('[data-setting-key="brand_line3"]').forEach((el) => (el.textContent = SETTINGS.brand_line3));
+
+  NAV_SECTIONS.forEach((section) => {
+    const navItem = document.querySelector(`.nav-item[data-section="${section}"]`);
+    if (!navItem) return;
+
+    const label = navItem.querySelector(".nav-label");
+    if (label) label.textContent = SETTINGS[`nav_${section}_label`] || label.textContent;
+
+    const iconWrap = navItem.querySelector(".nav-icon");
+    if (iconWrap) {
+      // Remember the original SVG once, so clearing a custom emoji later can restore it.
+      if (!iconWrap.dataset.defaultIcon) iconWrap.dataset.defaultIcon = iconWrap.innerHTML;
+      const customIcon = SETTINGS[`nav_${section}_icon`];
+      iconWrap.innerHTML = customIcon ? `<span>${customIcon}</span>` : iconWrap.dataset.defaultIcon;
+    }
+  });
+
+  PAGE_DESC_SECTIONS.forEach((section) => {
+    const el = document.querySelector(`#page-${section} [data-setting-key="page_${section}_desc"]`);
+    if (el) el.textContent = SETTINGS[`page_${section}_desc`];
+  });
+
+  applyCustomCss(SETTINGS.custom_css || "");
+  wireInlineEditing(document);
+}
+
+function applyCustomCss(css) {
+  let styleEl = document.getElementById("customCssStyle");
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = "customCssStyle";
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = css;
+}
+
+async function handleNavIconEditClick(btn) {
+  const section = btn.dataset.section;
+  const key = `nav_${section}_icon`;
+  const current = SETTINGS[key] || "";
+  const emoji = window.prompt("Masukkan emoji baharu untuk ikon ini (kosongkan untuk guna ikon asal):", current);
+  if (emoji === null) return;
+
+  if (isDemo()) {
+    MOCK.settings[key] = emoji;
+    SETTINGS[key] = emoji;
+    showToast("Ikon dikemas kini (mod demo).");
+    renderSettings();
+    return;
+  }
+
+  const result = await postToSheet({ action: "updateSetting", key, value: emoji });
+  if (result.status === "ok") {
+    SETTINGS[key] = emoji;
+    showToast("Ikon berjaya dikemas kini.");
+    renderSettings();
+  } else {
+    showToast("Gagal mengemas kini ikon.", "error");
+  }
+}
+
+function initCustomCssModal() {
+  const openBtn = document.getElementById("openCssModalBtn");
+  const modal = document.getElementById("cssModal");
+  const textarea = document.getElementById("cssModalTextarea");
+
+  openBtn.addEventListener("click", () => {
+    textarea.value = SETTINGS.custom_css || "";
+    modal.classList.add("show");
+  });
+
+  document.getElementById("cssModalCancel").addEventListener("click", () => modal.classList.remove("show"));
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
+
+  document.getElementById("cssModalSave").addEventListener("click", async () => {
+    const css = textarea.value;
+    applyCustomCss(css); // live preview immediately, before the save round-trip
+
+    if (isDemo()) {
+      MOCK.settings.custom_css = css;
+      SETTINGS.custom_css = css;
+      showToast("CSS tersuai disimpan (mod demo).");
+      modal.classList.remove("show");
+      return;
+    }
+
+    const result = await postToSheet({ action: "updateSetting", key: "custom_css", value: css });
+    if (result.status === "ok") {
+      SETTINGS.custom_css = css;
+      showToast("CSS tersuai berjaya disimpan.");
+      modal.classList.remove("show");
+    } else {
+      showToast("Gagal menyimpan CSS tersuai.", "error");
+    }
   });
 }
 
@@ -1205,6 +1376,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminMode();
   initAdminCRUD();
   initThemeCustomizer();
+  initCustomCssModal();
 
   if (!USING_LIVE_BACKEND()) {
     console.info(
@@ -1218,6 +1390,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // live Google Sheet data arrives. A hard timeout guarantees the overlay
   // still lifts (showing whatever loaded) even if one fetch hangs/fails.
   const allRendered = Promise.all([
+    renderSettings(),
     renderHome(),
     renderPustaka(),
     renderElibrary(),

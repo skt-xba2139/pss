@@ -43,6 +43,7 @@ const SHEET_NAMES = {
   Committee: "Committee",
   Events: "Events",
   Wishlist: "Wishlist",
+  Settings: "Settings",
 };
 
 /**
@@ -59,6 +60,13 @@ function doGet(e) {
     // Special case: Books needs to be grouped by category for the carousel UI.
     if (sheetName === "Books") {
       return jsonResponse(getBooksGrouped());
+    }
+
+    // Special case: Settings is a key/value sheet — return it as a flat
+    // {key: value} object instead of an array of {key,value} rows, so the
+    // frontend can just do SETTINGS.brand_line1 etc.
+    if (sheetName === "Settings") {
+      return jsonResponse(getSettingsMap());
     }
 
     const data = readSheetAsObjects(sheetName);
@@ -80,6 +88,8 @@ function doGet(e) {
  *   - "deleteRow"    : admin removes an item from any sheet
  *   - "uploadImage"  : admin uploads a new image (saved to Drive), optionally
  *                      writing the resulting URL straight into a sheet cell
+ *   - "updateSetting": upsert one key/value pair in the Settings sheet
+ *                      (branding, nav labels/icons, page descriptions, custom CSS)
  */
 function doPost(e) {
   try {
@@ -105,6 +115,9 @@ function doPost(e) {
         break;
       case "uploadImage":
         result = handleUploadImage(payload);
+        break;
+      case "updateSetting":
+        result = handleUpdateSetting(payload);
         break;
       default:
         result = { status: "error", error: "Tindakan tidak dikenali: " + action };
@@ -299,6 +312,86 @@ function getOrCreateUploadsFolder() {
 }
 
 // ============================================================================
+// SETTINGS — key/value store for branding, nav labels/icons, page
+// descriptions and custom CSS. Everything the Admin Mode "site editor"
+// controls beyond individual content items lives here.
+// ============================================================================
+
+const DEFAULT_SETTINGS = {
+  brand_line1: "Pusat Sumber Ibnu Sina",
+  brand_line2: "SK Tangkungon Telupid",
+  brand_line3: "XBA 2139",
+  nav_home_label: "Utama / Buletin",
+  nav_home_icon: "",
+  nav_pustaka_label: "Pustaka Interaktif",
+  nav_pustaka_icon: "",
+  nav_elibrary_label: "E-Library",
+  nav_elibrary_icon: "",
+  nav_leaderboard_label: "Papan Pendahulu",
+  nav_leaderboard_icon: "",
+  nav_carta_label: "Carta Organisasi",
+  nav_carta_icon: "",
+  nav_kalendar_label: "Kalendar Acara",
+  nav_kalendar_icon: "",
+  nav_wakaf_label: "Wakaf & Sumbangan",
+  nav_wakaf_icon: "",
+  page_pustaka_desc: "Terokai koleksi buku popular pilihan Pusat Sumber Sekolah",
+  page_elibrary_desc: "Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran",
+  page_leaderboard_desc: "Top 10 Pembaca Teraktif Pusat Sumber Sekolah",
+  page_carta_desc: "Jawatankuasa Pusat Sumber Sekolah",
+  page_kalendar_desc: "Aktiviti akan datang, borang pendaftaran & peraturan",
+  page_wakaf_desc: "Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber",
+  custom_css: "",
+};
+
+/** Returns the Settings sheet, creating and seeding it with defaults if it
+ *  doesn't exist yet (self-heals for dashboards set up before this existed). */
+function getOrCreateSettingsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAMES.Settings);
+  if (sheet) return sheet;
+
+  sheet = ss.insertSheet(SHEET_NAMES.Settings);
+  sheet.getRange(1, 1, 1, 2).setValues([["key", "value"]]).setFontWeight("bold");
+  const rows = Object.keys(DEFAULT_SETTINGS).map((k) => [k, DEFAULT_SETTINGS[k]]);
+  sheet.getRange(2, 1, rows.length, 2).setValues(rows);
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
+/** Reads Settings as a flat {key: value} object, filling in any key that's
+ *  missing from the sheet (e.g. a newly-added setting) with its default. */
+function getSettingsMap() {
+  const sheet = getOrCreateSettingsSheet();
+  const values = sheet.getDataRange().getValues();
+  const map = Object.assign({}, DEFAULT_SETTINGS);
+  for (let r = 1; r < values.length; r++) {
+    const key = values[r][0];
+    if (key) map[key] = values[r][1];
+  }
+  return map;
+}
+
+/** Upserts one Settings key/value pair. payload: { key, value } */
+function handleUpdateSetting(payload) {
+  if (!payload.key) return { status: "error", error: "'key' diperlukan." };
+
+  const sheet = getOrCreateSettingsSheet();
+  const data = sheet.getDataRange().getValues();
+  const targetKey = String(payload.key).toLowerCase();
+
+  for (let r = 1; r < data.length; r++) {
+    if (String(data[r][0]).toLowerCase() === targetKey) {
+      sheet.getRange(r + 1, 2).setValue(payload.value);
+      return { status: "ok" };
+    }
+  }
+
+  sheet.appendRow([payload.key, payload.value]);
+  return { status: "ok" };
+}
+
+// ============================================================================
 // ONE-CLICK SETUP
 // ============================================================================
 // Run this once from the Apps Script editor (select "setupDashboardSheets"
@@ -420,6 +513,11 @@ function setupDashboardSheets() {
         ["w6", "Headphone Pembelajaran", "2 / 10 disumbang", 20, "https://picsum.photos/seed/wish6/400/300", false],
       ],
     },
+    {
+      name: SHEET_NAMES.Settings,
+      headers: ["key", "value"],
+      rows: Object.keys(DEFAULT_SETTINGS).map((k) => [k, DEFAULT_SETTINGS[k]]),
+    },
   ];
 
   sheetDefs.forEach((def) => {
@@ -466,6 +564,7 @@ function upgradeDashboardSheets() {
   addIdColumnIfMissing(SHEET_NAMES.Activities, "act");
   addIdColumnIfMissing(SHEET_NAMES.Leaderboard, "lb");
   addColumnsIfMissing(SHEET_NAMES.Events, ["rulesLink", "registerLink"]);
+  getOrCreateSettingsSheet(); // creates + seeds "Settings" if it doesn't exist yet
   Logger.log("Upgrade selesai.");
 }
 
