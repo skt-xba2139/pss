@@ -1004,9 +1004,14 @@ function hexToRgba(hex, alpha) {
  */
 function applySavedOrder(items, orderKey, idKey = "id") {
   const orderStr = SETTINGS && SETTINGS[`order_${orderKey}`];
-  if (!orderStr) return items;
+  if (!orderStr && orderStr !== 0) return items;
 
-  const orderedIds = orderStr.split(",").filter(Boolean);
+  // Google Sheets returns a cell as a JS number (not a string) whenever its
+  // content is purely numeric — which happens whenever a saved order has
+  // exactly one item and that item's id looks like a number (e.g. an
+  // announcement id generated from Date.now()). String(...) first so
+  // .split() never throws in that case.
+  const orderedIds = String(orderStr).split(",").filter(Boolean);
   const remaining = new Map(items.map((it) => [String(it[idKey]), it]));
   const result = [];
 
@@ -1885,8 +1890,15 @@ document.addEventListener("DOMContentLoaded", () => {
   ]);
   const safetyTimeout = new Promise((resolve) => setTimeout(resolve, 8000));
 
-  Promise.race([allRendered, safetyTimeout]).then(() => {
-    document.getElementById("appLoadingOverlay").classList.add("hidden");
-    initHomeSectionSorting();
-  });
+  // .catch() here is load-bearing: if any single render*() rejects,
+  // Promise.all (and therefore the race) rejects too, and without this the
+  // .then() below would simply never run — permanently stranding every
+  // visitor on the loading screen even though the other 8 sections had
+  // already rendered fine. Log the error but always still reveal the page.
+  Promise.race([allRendered, safetyTimeout])
+    .catch((err) => console.error("Satu atau lebih seksyen gagal dimuatkan:", err))
+    .then(() => {
+      document.getElementById("appLoadingOverlay").classList.add("hidden");
+      initHomeSectionSorting();
+    });
 });
