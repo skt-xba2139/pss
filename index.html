@@ -16,8 +16,12 @@
      visitors never see stale/placeholder content flash before the real
      data arrives. Removed by script.js once all renders resolve. -->
 <div class="app-loading-overlay" id="appLoadingOverlay">
-  <div class="app-loading-mark">PSS<span>.</span></div>
-  <div class="app-loading-spinner"></div>
+  <div class="app-loading-icon-wrap">
+    <div class="app-loading-icon-ring"></div>
+    <svg class="app-loading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2-1 5-1 7 .5v13c-2-1.5-5-1.5-7-.5z"/><path d="M21 5.5c-2-1-5-1-7 .5v13c2-1.5 5-1.5 7-.5z"/></svg>
+  </div>
+  <div class="app-loading-mark">Pusat Sumber Sekolah</div>
+  <div class="app-loading-bar"></div>
   <div class="app-loading-text">Memuatkan data...</div>
 </div>
 
@@ -177,7 +181,7 @@
     <section class="page" id="page-pustaka">
       <div class="page-header page-header-row">
         <div>
-          <h1>Pustaka Interaktif</h1>
+          <h1 contenteditable="false" data-editable="page-pustaka-title" data-setting-key="nav_pustaka_label">Pustaka Interaktif</h1>
           <p contenteditable="false" data-editable="page-pustaka-desc" data-setting-key="page_pustaka_desc">Terokai koleksi buku popular pilihan Pusat Sumber Sekolah</p>
         </div>
         <button type="button" class="add-tile add-tile--inline" data-sheet="Books">
@@ -192,7 +196,7 @@
     <!-- ============ E-LIBRARY ============ -->
     <section class="page" id="page-elibrary">
       <div class="page-header">
-        <h1>E-Library (Bahan Digital)</h1>
+        <h1 contenteditable="false" data-editable="page-elibrary-title" data-setting-key="nav_elibrary_label">E-Library</h1>
         <p contenteditable="false" data-editable="page-elibrary-desc" data-setting-key="page_elibrary_desc">Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran</p>
       </div>
 
@@ -209,7 +213,7 @@
     <!-- ============ LEADERBOARD ============ -->
     <section class="page" id="page-leaderboard">
       <div class="page-header">
-        <h1>Papan Pendahulu</h1>
+        <h1 contenteditable="false" data-editable="page-leaderboard-title" data-setting-key="nav_leaderboard_label">Papan Pendahulu</h1>
         <p contenteditable="false" data-editable="page-leaderboard-desc" data-setting-key="page_leaderboard_desc">Top 10 Pembaca Teraktif Pusat Sumber Sekolah</p>
       </div>
 
@@ -220,7 +224,7 @@
     <!-- ============ CARTA ORGANISASI ============ -->
     <section class="page" id="page-carta">
       <div class="page-header">
-        <h1>Carta Organisasi</h1>
+        <h1 contenteditable="false" data-editable="page-carta-title" data-setting-key="nav_carta_label">Carta Organisasi</h1>
         <p contenteditable="false" data-editable="page-carta-desc" data-setting-key="page_carta_desc">Jawatankuasa Pusat Sumber Sekolah</p>
       </div>
 
@@ -230,7 +234,7 @@
     <!-- ============ KALENDAR ACARA ============ -->
     <section class="page" id="page-kalendar">
       <div class="page-header">
-        <h1>Kalendar Acara</h1>
+        <h1 contenteditable="false" data-editable="page-kalendar-title" data-setting-key="nav_kalendar_label">Kalendar Acara</h1>
         <p contenteditable="false" data-editable="page-kalendar-desc" data-setting-key="page_kalendar_desc">Aktiviti akan datang, borang pendaftaran &amp; peraturan</p>
       </div>
 
@@ -240,7 +244,7 @@
     <!-- ============ WAKAF & SUMBANGAN ============ -->
     <section class="page" id="page-wakaf">
       <div class="page-header">
-        <h1>Wakaf &amp; Sumbangan</h1>
+        <h1 contenteditable="false" data-editable="page-wakaf-title" data-setting-key="nav_wakaf_label">Wakaf &amp; Sumbangan</h1>
         <p contenteditable="false" data-editable="page-wakaf-desc" data-setting-key="page_wakaf_desc">Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber</p>
       </div>
 
