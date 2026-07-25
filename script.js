@@ -842,6 +842,12 @@ function wireInlineEditing(container = document) {
         if (result.status === "ok") {
           if (isDemo()) MOCK.settings[el.dataset.settingKey] = newValue;
           SETTINGS[el.dataset.settingKey] = newValue;
+          // Other elements bound to the same key (e.g. a nav label and its
+          // page's big <h1> share one key) update immediately too, without
+          // needing a full reload.
+          document.querySelectorAll(`[data-setting-key="${el.dataset.settingKey}"]`).forEach((other) => {
+            if (other !== el) other.textContent = newValue;
+          });
           showToast("Tetapan berjaya dikemas kini.");
         } else {
           showToast("Gagal menyimpan tetapan.", "error");
@@ -892,19 +898,26 @@ async function renderSettings() {
   document.querySelectorAll('[data-setting-key="brand_line3"]').forEach((el) => (el.textContent = SETTINGS.brand_line3));
 
   NAV_SECTIONS.forEach((section) => {
+    const labelValue = SETTINGS[`nav_${section}_label`];
     const navItem = document.querySelector(`.nav-item[data-section="${section}"]`);
-    if (!navItem) return;
 
-    const label = navItem.querySelector(".nav-label");
-    if (label) label.textContent = SETTINGS[`nav_${section}_label`] || label.textContent;
+    if (navItem) {
+      const label = navItem.querySelector(".nav-label");
+      if (label) label.textContent = labelValue || label.textContent;
 
-    const iconWrap = navItem.querySelector(".nav-icon");
-    if (iconWrap) {
-      // Remember the original SVG once, so clearing a custom emoji later can restore it.
-      if (!iconWrap.dataset.defaultIcon) iconWrap.dataset.defaultIcon = iconWrap.innerHTML;
-      const customIcon = SETTINGS[`nav_${section}_icon`];
-      iconWrap.innerHTML = customIcon ? `<span>${customIcon}</span>` : iconWrap.dataset.defaultIcon;
+      const iconWrap = navItem.querySelector(".nav-icon");
+      if (iconWrap) {
+        // Remember the original SVG once, so clearing a custom emoji later can restore it.
+        if (!iconWrap.dataset.defaultIcon) iconWrap.dataset.defaultIcon = iconWrap.innerHTML;
+        const customIcon = SETTINGS[`nav_${section}_icon`];
+        iconWrap.innerHTML = customIcon ? `<span>${customIcon}</span>` : iconWrap.dataset.defaultIcon;
+      }
     }
+
+    // The big on-page <h1> for each section shares the same setting as its
+    // nav label, so renaming a tab (from either place) keeps both in sync.
+    const pageTitle = document.querySelector(`#page-${section} h1[data-setting-key="nav_${section}_label"]`);
+    if (pageTitle) pageTitle.textContent = labelValue || pageTitle.textContent;
   });
 
   PAGE_DESC_SECTIONS.forEach((section) => {
