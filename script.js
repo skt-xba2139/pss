@@ -918,11 +918,13 @@ function setAdminMode(on) {
     el.setAttribute("contenteditable", on ? "true" : "false");
   });
 
-  // The Home marquee renders as a single (editable) copy in admin mode but
-  // a duplicated, animated copy for visitors (see renderHome) — re-render
-  // it now so flipping admin mode mid-session switches immediately instead
-  // of only taking effect on the next full page load.
+  // The Home marquee and Pustaka carousels both render a single (editable)
+  // copy of each item in admin mode but a duplicated, animated copy for
+  // visitors (see renderHome / renderPustaka) — re-render both now so
+  // flipping admin mode mid-session switches immediately instead of only
+  // taking effect on the next full page load.
   if (document.getElementById("marqueeTrack")) renderHome();
+  if (document.getElementById("carouselRows")) renderPustaka();
 
   if (!on) showToast("Mod Admin dimatikan.", "success");
 }
@@ -1520,16 +1522,12 @@ async function renderPustaka() {
     row.items = applySavedOrder(row.items, `books_${slugifyOrderKey(row.category)}`);
   });
   const container = document.getElementById("carouselRows");
+  const inAdminMode = document.body.classList.contains("admin-mode");
 
-  container.innerHTML = rows
-    .map(
-      (row) => `
-    <div class="carousel-row">
-      <h3 class="carousel-row-title">${row.category}</h3>
-      <div class="carousel-scroller" data-category="${row.category}">
-        ${row.items
-          .map(
-            (book) => `
+  const buildBooks = (items) =>
+    items
+      .map(
+        (book) => `
           <div class="book-card" data-book-id="${book.id}">
             <img src="${book.cover}" alt="${book.title}" loading="lazy">
             ${deleteBtnHTML("Books", book.id)}
@@ -1540,8 +1538,28 @@ async function renderPustaka() {
               <button class="btn btn-primary book-borrow-btn" data-book-id="${book.id}">${icon("book")} Tempah Buku</button>
             </div>
           </div>`
-          )
-          .join("")}
+      )
+      .join("");
+
+  container.innerHTML = rows
+    .map(
+      (row) => `
+    <div class="carousel-row">
+      <h3 class="carousel-row-title">${row.category}</h3>
+      <div class="carousel-scroller" data-category="${row.category}">
+        ${
+          // A category with only 4-5 books almost never overflows a wide
+          // desktop viewport, so there's nothing for the auto-scroll drift
+          // to actually scroll — it silently does nothing (not a bug, just
+          // nothing to scroll). Duplicating the row's cards guarantees real
+          // overflow so the Netflix-style drift always has room to move,
+          // the same fix already applied to the Home marquee. But each
+          // duplicate card carries its own delete/upload button sharing the
+          // same data-book-id, so — exactly as with the marquee — only do
+          // this for regular visitors; admin mode always shows one true,
+          // editable copy per book.
+          inAdminMode ? buildBooks(row.items) : buildBooks(row.items) + buildBooks(row.items)
+        }
         ${addTileHTML("Books", "Tambah Buku", { category: row.category })}
       </div>
     </div>`
