@@ -294,9 +294,17 @@ function handleUploadImage(payload) {
     const sheet = getSheet(payload.sheet);
     if (sheet) {
       const headers = getHeaders(sheet);
-      const colIndex = findColumnIndex(headers, payload.column);
+      let colIndex = findColumnIndex(headers, payload.column);
+      // A brand-new field (e.g. adding photo uploads to a sheet that never
+      // had that column) must not be silently dropped just because the
+      // header row doesn't have it yet — auto-add it, the same self-healing
+      // approach already used for missing sheets.
+      if (colIndex === -1) {
+        colIndex = headers.length;
+        sheet.getRange(1, colIndex + 1).setValue(payload.column);
+      }
       const rowIndex = findRowIndex(sheet, headers, payload.row);
-      if (colIndex !== -1 && rowIndex !== -1) {
+      if (rowIndex !== -1) {
         sheet.getRange(rowIndex + 1, colIndex + 1).setValue(url);
       }
     }

@@ -422,6 +422,10 @@ const CRUD = {
     buildRow: (v) => ({ id: "lb_" + Date.now(), name: v.name, kelas: v.kelas, score: Number(v.score) || 0 }),
     demoAdd: (row) => MOCK.leaderboard.push(row),
     demoDelete: (id) => { MOCK.leaderboard = MOCK.leaderboard.filter((x) => String(x.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const m = MOCK.leaderboard.find((x) => String(x.id) === String(id));
+      if (m) m.photo = url;
+    },
   },
   Committee: {
     render: () => renderCarta(),
@@ -903,6 +907,13 @@ function setAdminMode(on) {
   document.body.classList.toggle("admin-mode", on);
   document.getElementById("adminToggleBtn").classList.toggle("on", on);
 
+  // Flip every sortable card's native draggable attribute in lockstep with
+  // admin mode, so regular visitors never have draggable="true" images
+  // fighting the carousel's auto-scroll (see makeSortable).
+  document.querySelectorAll(".js-sortable-card").forEach((card) => {
+    card.setAttribute("draggable", on ? "true" : "false");
+  });
+
   document.querySelectorAll("[data-editable]").forEach((el) => {
     el.setAttribute("contenteditable", on ? "true" : "false");
   });
@@ -1055,7 +1066,14 @@ function makeSortable(container, orderKey, cardSelector, idAttr, layout = "grid"
   const cards = () => Array.from(container.querySelectorAll(cardSelector));
 
   cards().forEach((card) => {
-    card.setAttribute("draggable", "true");
+    // Only actually mark cards draggable while admin mode is on. Leaving
+    // draggable="true" set for every regular visitor (as before) made the
+    // browser treat the card's own <img> as a native drag source the moment
+    // the cursor rested on it — which silently fights any in-progress
+    // programmatic scrollLeft animation (e.g. the Netflix-style auto-scroll
+    // drift) the instant a visitor's mouse crosses a book cover.
+    card.classList.add("js-sortable-card");
+    card.setAttribute("draggable", document.body.classList.contains("admin-mode") ? "true" : "false");
 
     card.addEventListener("dragstart", (e) => {
       if (!document.body.classList.contains("admin-mode")) { e.preventDefault(); return; }
@@ -1688,7 +1706,10 @@ async function renderLeaderboard() {
       <div class="podium-item rank-${rank}">
         ${rank === 1 ? `<div class="podium-crown">${icon("crown")}</div>` : ""}
         ${deleteBtnHTML("Leaderboard", person.id)}
-        <div class="podium-avatar">${initials(person.name)}</div>
+        <div class="podium-avatar">
+          ${person.photo ? `<img src="${person.photo}" alt="${person.name}">` : initials(person.name)}
+          ${imgEditBtnHTML("Leaderboard", person.id, "photo", "Tukar gambar pelajar")}
+        </div>
         <div class="podium-name">${person.name}</div>
         <div class="podium-class">${person.kelas}</div>
         <div class="podium-score">${person.score} pts</div>
@@ -1705,7 +1726,10 @@ async function renderLeaderboard() {
         (p, i) => `
     <div class="lb-row">
       <div class="lb-rank">#${i + 4}</div>
-      <div class="lb-avatar">${initials(p.name)}</div>
+      <div class="lb-avatar">
+        ${p.photo ? `<img src="${p.photo}" alt="${p.name}">` : initials(p.name)}
+        ${imgEditBtnHTML("Leaderboard", p.id, "photo", "Tukar gambar pelajar")}
+      </div>
       <div class="lb-info">
         <div class="lb-name">${p.name}</div>
         <div class="lb-class">${p.kelas}</div>

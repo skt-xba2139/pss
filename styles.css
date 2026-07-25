@@ -1007,11 +1007,20 @@ a { text-decoration: none; color: inherit; }
   font-weight: 800; font-size: 20px;
   border: 3px solid var(--bg-deep);
   box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  overflow: hidden;
 }
 .podium-item.rank-1 .podium-avatar {
   width: 78px; height: 78px; font-size: 24px;
   border-color: var(--gold);
   box-shadow: 0 0 0 4px rgba(245,197,24,0.15), 0 6px 18px rgba(0,0,0,0.4);
+}
+/* an uploaded photo must fill the circle exactly regardless of its own
+   aspect ratio, and stay clipped to the circle rather than spilling out */
+.podium-avatar img {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
 }
 .podium-name { font-weight: 700; font-size: 14px; }
 .podium-class { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; }
@@ -1044,6 +1053,13 @@ a { text-decoration: none; color: inherit; }
   background: var(--bg-panel-2);
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700;
+  overflow: hidden;
+}
+.lb-avatar img {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
 }
 .lb-info { flex: 1; }
 .lb-name { font-size: 14px; font-weight: 600; }
@@ -1671,12 +1687,18 @@ a { text-decoration: none; color: inherit; }
   --bg-glass: rgba(0, 0, 0, 0.035);
   --border-glass: rgba(0, 0, 0, 0.09);
 
-  --glass-fill: linear-gradient(145deg, rgba(0,0,0,0.035), rgba(0,0,0,0.01));
-  --glass-fill-strong: linear-gradient(145deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
-  --glass-border: rgba(0, 0, 0, 0.10);
-  --glass-border-hover: rgba(0, 0, 0, 0.22);
-  --glass-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.7);
-  --glass-shadow-hover: 0 20px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+  /* A black tint at low alpha reads far weaker against a bright white page
+     than the equivalent white tint reads against a near-black one — so
+     mirroring dark mode's alpha values 1:1 left every card looking washed
+     out and barely separated from the page in light mode. Bumped these up
+     (and given cards a solid white base + a real drop shadow below) so
+     light-mode cards pop the same way dark-mode ones do. */
+  --glass-fill: linear-gradient(145deg, rgba(0,0,0,0.05), rgba(0,0,0,0.015));
+  --glass-fill-strong: linear-gradient(145deg, rgba(0,0,0,0.09), rgba(0,0,0,0.03));
+  --glass-border: rgba(0, 0, 0, 0.14);
+  --glass-border-hover: rgba(0, 0, 0, 0.30);
+  --glass-shadow: 0 4px 18px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.7);
+  --glass-shadow-hover: 0 20px 48px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.8);
 
   --text-primary: #14151a;
   --text-secondary: #4a4d57;
@@ -1825,3 +1847,23 @@ a { text-decoration: none; color: inherit; }
    rgba mixes for the icon halo; make sure the icon itself stays legible */
 :root[data-theme="light"] .toast.error .icon { color: var(--red); }
 :root[data-theme="light"] .toast.success .icon { color: #1e8449; }
+
+/* .glass-card and friends only ever paint their low-alpha tint gradient —
+   in dark mode that sits on top of a near-black page so it still reads as
+   a distinctly lighter panel, but in light mode the exact same gradient
+   sits on a near-white page with nothing solid behind it, so the "card"
+   barely differs from the page itself (worst offender: the leaderboard
+   podium). Layer the tint over a solid white base so every card actually
+   separates from the page in light mode too. */
+:root[data-theme="light"] .glass-card,
+:root[data-theme="light"] .podium-item,
+:root[data-theme="light"] .lb-row,
+:root[data-theme="light"] .org-card {
+  background-image: linear-gradient(145deg, rgba(0,0,0,0.05), rgba(0,0,0,0.015));
+  background-color: #ffffff;
+}
+:root[data-theme="light"] .glass-card:hover,
+:root[data-theme="light"] .podium-item:hover,
+:root[data-theme="light"] .lb-row:hover {
+  background-image: linear-gradient(145deg, rgba(0,0,0,0.09), rgba(0,0,0,0.03));
+}
