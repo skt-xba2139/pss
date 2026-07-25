@@ -422,6 +422,10 @@ const CRUD = {
     buildRow: (v) => ({ id: "lb_" + Date.now(), name: v.name, kelas: v.kelas, score: Number(v.score) || 0 }),
     demoAdd: (row) => MOCK.leaderboard.push(row),
     demoDelete: (id) => { MOCK.leaderboard = MOCK.leaderboard.filter((x) => String(x.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const m = MOCK.leaderboard.find((x) => String(x.id) === String(id));
+      if (m) m.photo = url;
+    },
   },
   Committee: {
     render: () => renderCarta(),
@@ -903,9 +907,22 @@ function setAdminMode(on) {
   document.body.classList.toggle("admin-mode", on);
   document.getElementById("adminToggleBtn").classList.toggle("on", on);
 
+  // Flip every sortable card's native draggable attribute in lockstep with
+  // admin mode, so regular visitors never have draggable="true" images
+  // fighting the carousel's auto-scroll (see makeSortable).
+  document.querySelectorAll(".js-sortable-card").forEach((card) => {
+    card.setAttribute("draggable", on ? "true" : "false");
+  });
+
   document.querySelectorAll("[data-editable]").forEach((el) => {
     el.setAttribute("contenteditable", on ? "true" : "false");
   });
+
+  // The Home marquee renders as a single (editable) copy in admin mode but
+  // a duplicated, animated copy for visitors (see renderHome) — re-render
+  // it now so flipping admin mode mid-session switches immediately instead
+  // of only taking effect on the next full page load.
+  if (document.getElementById("marqueeTrack")) renderHome();
 
   if (!on) showToast("Mod Admin dimatikan.", "success");
 }
@@ -1055,7 +1072,14 @@ function makeSortable(container, orderKey, cardSelector, idAttr, layout = "grid"
   const cards = () => Array.from(container.querySelectorAll(cardSelector));
 
   cards().forEach((card) => {
-    card.setAttribute("draggable", "true");
+    // Only actually mark cards draggable while admin mode is on. Leaving
+    // draggable="true" set for every regular visitor (as before) made the
+    // browser treat the card's own <img> as a native drag source the moment
+    // the cursor rested on it — which silently fights any in-progress
+    // programmatic scrollLeft animation (e.g. the Netflix-style auto-scroll
+    // drift) the instant a visitor's mouse crosses a book cover.
+    card.classList.add("js-sortable-card");
+    card.setAttribute("draggable", document.body.classList.contains("admin-mode") ? "true" : "false");
 
     card.addEventListener("dragstart", (e) => {
       if (!document.body.classList.contains("admin-mode")) { e.preventDefault(); return; }
@@ -1427,7 +1451,15 @@ async function renderHome() {
     heroDeleteWrap.innerHTML = `<button type="button" class="hero-delete-btn item-delete-btn" data-sheet="Announcements" data-id="${hero.id}" title="Padam pengumuman ini">${icon("trash")} Padam</button>`;
   }
 
-  // Marquee — duplicate items for a seamless infinite loop
+  // Marquee — duplicate items for a seamless infinite loop (the CSS
+  // animation slides the track by exactly -50%, so it only loops seamlessly
+  // when the track holds two back-to-back copies). But every duplicated
+  // item carries its own live delete/upload buttons with the same
+  // data-id, so in admin mode this reads as "I added one photo and two
+  // appeared" — every activity has always shown twice, admin only notices
+  // it the moment they add or upload one. Render a single editable copy
+  // (no animation) while admin mode is on, and only duplicate + animate for
+  // regular visitors.
   const track = document.getElementById("marqueeTrack");
   const buildItems = (list) =>
     list
@@ -1441,7 +1473,9 @@ async function renderHome() {
       </div>`
       )
       .join("");
-  track.innerHTML = buildItems(marqueeItems) + buildItems(marqueeItems);
+  track.innerHTML = document.body.classList.contains("admin-mode")
+    ? buildItems(marqueeItems)
+    : buildItems(marqueeItems) + buildItems(marqueeItems);
 
   // Remaining announcements grid (skip the hero one) — reordering here only
   // ever affects this grid's own display order, never which one is hero.
@@ -1688,7 +1722,10 @@ async function renderLeaderboard() {
       <div class="podium-item rank-${rank}">
         ${rank === 1 ? `<div class="podium-crown">${icon("crown")}</div>` : ""}
         ${deleteBtnHTML("Leaderboard", person.id)}
-        <div class="podium-avatar">${initials(person.name)}</div>
+        <div class="podium-avatar">
+          ${person.photo ? `<img src="${person.photo}" alt="${person.name}">` : initials(person.name)}
+          ${imgEditBtnHTML("Leaderboard", person.id, "photo", "Tukar gambar pelajar")}
+        </div>
         <div class="podium-name">${person.name}</div>
         <div class="podium-class">${person.kelas}</div>
         <div class="podium-score">${person.score} pts</div>
@@ -1705,7 +1742,10 @@ async function renderLeaderboard() {
         (p, i) => `
     <div class="lb-row">
       <div class="lb-rank">#${i + 4}</div>
-      <div class="lb-avatar">${initials(p.name)}</div>
+      <div class="lb-avatar">
+        ${p.photo ? `<img src="${p.photo}" alt="${p.name}">` : initials(p.name)}
+        ${imgEditBtnHTML("Leaderboard", p.id, "photo", "Tukar gambar pelajar")}
+      </div>
       <div class="lb-info">
         <div class="lb-name">${p.name}</div>
         <div class="lb-class">${p.kelas}</div>
