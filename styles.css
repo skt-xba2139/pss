@@ -796,6 +796,9 @@ a { text-decoration: none; color: inherit; }
   padding: 10px 12px 8px;
   font-size: 12px;
   font-weight: 600;
+  /* always a hardcoded dark scrim over a photo in both themes — pin the
+     text light so light mode doesn't flip it to unreadable dark-on-dark */
+  color: #fff;
 }
 
 /* ==========================================================================
@@ -911,9 +914,14 @@ a { text-decoration: none; color: inherit; }
   transition: opacity 0.3s var(--ease);
 }
 
-.book-card-overlay h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; }
+/* This scrim is always a hardcoded dark gradient (it sits over a book
+   cover photo, in BOTH themes), but its title/synopsis text used the
+   theme-linked --text-primary/--text-secondary — which flip to near-black
+   in light mode, leaving dark text on a dark scrim. Pin it light in both
+   themes instead, same fix already applied to the hero. */
+.book-card-overlay h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; color: #fff; }
 .book-card-overlay p {
-  font-size: 11px; color: var(--text-secondary);
+  font-size: 11px; color: rgba(255,255,255,0.75);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
