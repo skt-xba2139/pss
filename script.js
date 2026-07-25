@@ -176,6 +176,11 @@ const MOCK = {
     { id: "w5", name: "Skrin Projektor PSS", qty: "0 / 1 disumbang", progress: 0, image: "https://picsum.photos/seed/wish5/400/300", donated: false },
     { id: "w6", name: "Headphone Pembelajaran", qty: "2 / 10 disumbang", progress: 20, image: "https://picsum.photos/seed/wish6/400/300", donated: false },
   ],
+  heroSlides: [
+    { id: "hero1", image: "https://picsum.photos/seed/psshero/1600/700" },
+    { id: "hero2", image: "https://picsum.photos/seed/psshero2/1600/700" },
+    { id: "hero3", image: "https://picsum.photos/seed/psshero3/1600/700" },
+  ],
   settings: {
     brand_line1: "Pusat Sumber Ibnu Sina",
     brand_line2: "SK Tangkungon Telupid",
@@ -286,6 +291,21 @@ const CRUD = {
     demoUploadImage: (id, url) => {
       const a = MOCK.announcements.find((x) => String(x.id) === String(id));
       if (a) a.image = url;
+    },
+  },
+  HeroSlides: {
+    render: () => renderHeroSlides(),
+    title: "Tambah Gambar Hero",
+    fields: () => [],
+    buildRow: () => ({
+      id: "hero_" + Date.now(),
+      image: `https://picsum.photos/seed/hero${Date.now()}/1600/700`,
+    }),
+    demoAdd: (row) => MOCK.heroSlides.push(row),
+    demoDelete: (id) => { MOCK.heroSlides = MOCK.heroSlides.filter((s) => String(s.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const s = MOCK.heroSlides.find((x) => String(x.id) === String(id));
+      if (s) s.image = url;
     },
   },
   Activities: {
@@ -546,9 +566,17 @@ function handleAddTileClick(el) {
   const cfg = CRUD[sheet];
   if (!cfg) return;
 
+  const fields = cfg.fields({ category });
+  // Nothing to fill in (e.g. a hero slide is just a placeholder image the
+  // admin uploads a real photo over afterward) — skip the empty modal.
+  if (fields.length === 0) {
+    handleAddSubmit(sheet, {});
+    return;
+  }
+
   openFormModal({
     title: cfg.title,
-    fields: cfg.fields({ category }),
+    fields,
     onSubmit: (values) => handleAddSubmit(sheet, values),
   });
 }
@@ -894,6 +922,108 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// ==========================================================================
+// DRAG-TO-REORDER ("snap" reordering) — lets Admin Mode drag any card into
+// a new position within its grid/row/list; the new order is persisted via
+// the Settings sheet (key "order_<orderKey>") so it survives reloads for
+// every visitor. Built on native HTML5 drag-and-drop, no external library.
+// ==========================================================================
+
+/**
+ * Sorts `items` (each with an id field) according to a previously-saved
+ * order, if one exists. Items not present in the saved order (e.g. newly
+ * added since the order was last saved) are appended at the end, in their
+ * original order — so nothing ever silently disappears.
+ */
+function applySavedOrder(items, orderKey, idKey = "id") {
+  const orderStr = SETTINGS && SETTINGS[`order_${orderKey}`];
+  if (!orderStr) return items;
+
+  const orderedIds = orderStr.split(",").filter(Boolean);
+  const remaining = new Map(items.map((it) => [String(it[idKey]), it]));
+  const result = [];
+
+  orderedIds.forEach((id) => {
+    if (remaining.has(id)) {
+      result.push(remaining.get(id));
+      remaining.delete(id);
+    }
+  });
+  remaining.forEach((it) => result.push(it));
+
+  return result;
+}
+
+async function saveOrder(orderKey, ids) {
+  const key = `order_${orderKey}`;
+  const value = ids.join(",");
+  if (SETTINGS) SETTINGS[key] = value;
+
+  if (isDemo()) {
+    MOCK.settings[key] = value;
+    return;
+  }
+  await postToSheet({ action: "updateSetting", key, value });
+}
+
+/**
+ * Makes every element matching `cardSelector` inside `container` draggable
+ * (admin mode only — dragstart is cancelled otherwise). Dragging one card
+ * over another live-reorders them in the DOM immediately (the "snap" — cards
+ * shuffle into place as you drag, same as any native reorderable list), and
+ * dropping persists the final DOM order via saveOrder().
+ *
+ * `layout` controls which axis decides "before or after the hovered card":
+ *   "horizontal" — a single scrolling row (carousels, thumbnail strips)
+ *   "vertical"   — a single column (leaderboard rows)
+ *   "grid"       — a wrapping grid (compares row first, then column)
+ */
+function makeSortable(container, orderKey, cardSelector, idAttr, layout = "grid") {
+  let draggedEl = null;
+  const cards = () => Array.from(container.querySelectorAll(cardSelector));
+
+  cards().forEach((card) => {
+    card.setAttribute("draggable", "true");
+
+    card.addEventListener("dragstart", (e) => {
+      if (!document.body.classList.contains("admin-mode")) { e.preventDefault(); return; }
+      draggedEl = card;
+      e.dataTransfer.effectAllowed = "move";
+      requestAnimationFrame(() => card.classList.add("dragging"));
+    });
+
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      if (draggedEl) {
+        const ids = cards().map((c) => c.dataset[idAttr]);
+        saveOrder(orderKey, ids);
+      }
+      draggedEl = null;
+    });
+
+    card.addEventListener("dragover", (e) => {
+      if (!draggedEl || draggedEl === card) return;
+      e.preventDefault();
+
+      const rect = card.getBoundingClientRect();
+      let insertBefore;
+      if (layout === "horizontal") {
+        insertBefore = e.clientX < rect.left + rect.width / 2;
+      } else if (layout === "vertical") {
+        insertBefore = e.clientY < rect.top + rect.height / 2;
+      } else {
+        const sameRow = Math.abs(e.clientY - (rect.top + rect.height / 2)) < rect.height / 2;
+        insertBefore = sameRow
+          ? e.clientX < rect.left + rect.width / 2
+          : e.clientY < rect.top + rect.height / 2;
+      }
+
+      if (insertBefore) card.parentNode.insertBefore(draggedEl, card);
+      else card.parentNode.insertBefore(draggedEl, card.nextSibling);
+    });
+  });
+}
+
 /**
  * Attach a "blur" listener to every editable element so edits are saved
  * (POSTed to the Google Sheet) the moment the admin clicks away.
@@ -1083,27 +1213,73 @@ function initCustomCssModal() {
 // RENDER: HOME / BULLETIN
 // ==========================================================================
 
+// ==========================================================================
+// RENDER: HERO SLIDESHOW — multiple background images that crossfade
+// automatically. Admin manages the list via a thumbnail strip below the
+// hero (add/delete/upload), using the same generic CRUD engine as
+// everything else. Regular visitors just see the fade cycle.
+// ==========================================================================
+
+let heroSlideTimer = null;
+
+async function renderHeroSlides() {
+  let slides = await fetchSheet("HeroSlides", MOCK.heroSlides);
+  slides = applySavedOrder(slides, "heroslides");
+  const heroMedia = document.getElementById("heroMedia");
+
+  heroMedia.querySelectorAll(".hero-slide").forEach((el) => el.remove());
+  slides.forEach((s, i) => {
+    const img = document.createElement("img");
+    img.src = s.image;
+    img.alt = "Buletin Pengumuman";
+    img.className = "hero-slide" + (i === 0 ? " active" : "");
+    heroMedia.insertBefore(img, heroMedia.firstChild);
+  });
+
+  const strip = document.getElementById("heroSlidesStrip");
+  strip.innerHTML =
+    slides
+      .map(
+        (s) => `
+    <div class="hero-slide-thumb" data-slide-id="${s.id}">
+      <img src="${s.image}" alt="Slaid hero" loading="lazy">
+      ${imgEditBtnHTML("HeroSlides", s.id, "image", "Tukar gambar slaid")}
+      ${deleteBtnHTML("HeroSlides", s.id)}
+    </div>`
+      )
+      .join("") + addTileHTML("HeroSlides", "Tambah Gambar");
+  makeSortable(strip, "heroslides", ".hero-slide-thumb", "slideId", "horizontal");
+
+  clearInterval(heroSlideTimer);
+  if (slides.length > 1) {
+    let activeIndex = 0;
+    heroSlideTimer = setInterval(() => {
+      const imgs = heroMedia.querySelectorAll(".hero-slide");
+      if (imgs.length < 2) return;
+      imgs[activeIndex].classList.remove("active");
+      activeIndex = (activeIndex + 1) % imgs.length;
+      imgs[activeIndex].classList.add("active");
+    }, 5000);
+  }
+}
+
 async function renderHome() {
-  const announcements = await fetchSheet("Announcements", MOCK.announcements);
+  let announcements = await fetchSheet("Announcements", MOCK.announcements);
+  announcements = applySavedOrder(announcements, "announcements");
   const marqueeItems = await fetchSheet("Activities", MOCK.marquee);
 
-  // Hero uses the first announcement
+  // Hero text uses the first announcement (the background image is now a
+  // separate multi-slide slideshow — see renderHeroSlides())
   const hero = announcements[0];
   const heroDeleteWrap = document.getElementById("heroDeleteWrap");
-  const heroImgBtn = document.getElementById("heroImgEditBtn");
   if (hero) {
-    const heroImg = document.querySelector("#heroBanner .hero-media img");
     const heroTitle = document.querySelector('[data-editable="announcement-title"]');
     const heroDesc = document.querySelector('[data-editable="announcement-desc"]');
-    if (hero.image) heroImg.src = hero.image;
     heroTitle.textContent = hero.title;
     heroDesc.textContent = hero.description;
     heroTitle.dataset.row = hero.id;
     heroDesc.dataset.row = hero.id;
     heroDeleteWrap.innerHTML = `<button type="button" class="hero-delete-btn item-delete-btn" data-sheet="Announcements" data-id="${hero.id}" title="Padam pengumuman ini">${icon("trash")} Padam</button>`;
-    heroImgBtn.dataset.sheet = "Announcements";
-    heroImgBtn.dataset.row = hero.id;
-    heroImgBtn.dataset.col = "image";
   }
 
   // Marquee — duplicate items for a seamless infinite loop
@@ -1129,7 +1305,7 @@ async function renderHome() {
       .slice(1)
       .map(
         (a) => `
-    <div class="glass-card announcement-card">
+    <div class="glass-card announcement-card" data-announcement-id="${a.id}">
       ${deleteBtnHTML("Announcements", a.id)}
       <h3 data-editable="announcement-title-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="title">${a.title}</h3>
       <p data-editable="announcement-desc-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="description">${a.description}</p>
@@ -1137,6 +1313,7 @@ async function renderHome() {
     </div>`
       )
       .join("") + addTileHTML("Announcements", "Tambah Pengumuman");
+  makeSortable(grid, "announcements", ".announcement-card", "announcementId", "grid");
 
   wireInlineEditing(grid);
   wireInlineEditing(document.querySelector(".hero"));
@@ -1153,8 +1330,15 @@ function formatDate(dateStr) {
 // RENDER: PUSTAKA INTERAKTIF (NETFLIX CAROUSEL)
 // ==========================================================================
 
+function slugifyOrderKey(text) {
+  return String(text).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
 async function renderPustaka() {
   const rows = await fetchSheet("Books", MOCK.books);
+  rows.forEach((row) => {
+    row.items = applySavedOrder(row.items, `books_${slugifyOrderKey(row.category)}`);
+  });
   const container = document.getElementById("carouselRows");
 
   container.innerHTML = rows
@@ -1162,7 +1346,7 @@ async function renderPustaka() {
       (row) => `
     <div class="carousel-row">
       <h3 class="carousel-row-title">${row.category}</h3>
-      <div class="carousel-scroller">
+      <div class="carousel-scroller" data-category="${row.category}">
         ${row.items
           .map(
             (book) => `
@@ -1196,6 +1380,10 @@ async function renderPustaka() {
       e.stopPropagation();
       reserveBook(btn.dataset.bookId, btn);
     });
+  });
+
+  container.querySelectorAll(".carousel-scroller").forEach((scroller) => {
+    makeSortable(scroller, `books_${slugifyOrderKey(scroller.dataset.category)}`, ".book-card", "bookId", "horizontal");
   });
 
   initCarouselAutoScroll(container);
@@ -1299,6 +1487,7 @@ let elibraryData = [];
 
 async function renderElibrary() {
   elibraryData = await fetchSheet("ELibrary", MOCK.elibrary);
+  elibraryData = applySavedOrder(elibraryData, "elibrary");
   drawElibrary("all");
 
   document.querySelectorAll(".filter-bar .chip").forEach((chip) => {
@@ -1320,7 +1509,7 @@ function drawElibrary(filter) {
     items
       .map(
         (item) => `
-    <div class="glass-card elib-card">
+    <div class="glass-card elib-card" data-elib-id="${item.id}">
       ${deleteBtnHTML("ELibrary", item.id)}
       <div class="elib-icon">${icon(ELIB_ICONS[item.type] || "file")}</div>
       <h3>${item.title}</h3>
@@ -1329,6 +1518,11 @@ function drawElibrary(filter) {
     </div>`
       )
       .join("") + addTileHTML("ELibrary", "Tambah Bahan");
+
+  // Only allow drag-reordering on the unfiltered view — reordering within a
+  // filtered subset would silently push every hidden item to the end of the
+  // saved order the next time it's read back.
+  if (filter === "all") makeSortable(grid, "elibrary", ".elib-card", "elibId", "grid");
 }
 
 // ==========================================================================
@@ -1393,13 +1587,13 @@ async function renderCarta() {
   container.innerHTML =
     tiers
       .map((tier) => {
-        const members = committee.filter((c) => c.tier === tier);
+        const members = applySavedOrder(committee.filter((c) => c.tier === tier), `committee_tier${tier}`, "editKey");
         return `
-      <div class="org-tier">
+      <div class="org-tier" data-tier="${tier}">
         ${members
           .map(
             (m) => `
-          <div class="glass-card org-card">
+          <div class="glass-card org-card" data-org-key="${m.editKey}">
             ${deleteBtnHTML("Committee", m.editKey)}
             ${imgEditBtnHTML("Committee", m.editKey, "avatar", "Tukar gambar")}
             <img class="org-avatar" src="${m.avatar}" alt="${m.name}">
@@ -1412,6 +1606,10 @@ async function renderCarta() {
       })
       .join("") + `<div class="org-add-row">${addTileHTML("Committee", "Tambah Ahli", { inline: true })}</div>`;
 
+  container.querySelectorAll(".org-tier").forEach((tierEl) => {
+    makeSortable(tierEl, `committee_tier${tierEl.dataset.tier}`, ".org-card", "orgKey", "grid");
+  });
+
   wireInlineEditing(container);
 }
 
@@ -1420,14 +1618,15 @@ async function renderCarta() {
 // ==========================================================================
 
 async function renderKalendar() {
-  const events = await fetchSheet("Events", MOCK.events);
+  let events = await fetchSheet("Events", MOCK.events);
+  events = applySavedOrder(events, "events");
   const grid = document.getElementById("eventGrid");
 
   grid.innerHTML =
     events
       .map(
         (ev) => `
-    <div class="glass-card event-card">
+    <div class="glass-card event-card" data-event-id="${ev.id}">
       ${deleteBtnHTML("Events", ev.id)}
       <div class="event-card-img">
         <img src="${ev.image}" alt="${ev.title}" loading="lazy">
@@ -1447,6 +1646,7 @@ async function renderKalendar() {
     </div>`
       )
       .join("") + addTileHTML("Events", "Tambah Acara");
+  makeSortable(grid, "events", ".event-card", "eventId", "grid");
 }
 
 // ==========================================================================
@@ -1454,7 +1654,8 @@ async function renderKalendar() {
 // ==========================================================================
 
 async function renderWakaf() {
-  const wishlist = await fetchSheet("Wishlist", MOCK.wishlist);
+  let wishlist = await fetchSheet("Wishlist", MOCK.wishlist);
+  wishlist = applySavedOrder(wishlist, "wishlist");
   const grid = document.getElementById("wishlistGrid");
 
   grid.innerHTML =
@@ -1480,6 +1681,7 @@ async function renderWakaf() {
   grid.querySelectorAll(".wish-donate-btn").forEach((btn) => {
     btn.addEventListener("click", () => donateItem(btn.dataset.wishId, btn));
   });
+  makeSortable(grid, "wishlist", ".wish-card", "wishId", "grid");
 }
 
 async function donateItem(wishId, btn) {
@@ -1529,6 +1731,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // still lifts (showing whatever loaded) even if one fetch hangs/fails.
   const allRendered = Promise.all([
     renderSettings(),
+    renderHeroSlides(),
     renderHome(),
     renderPustaka(),
     renderElibrary(),

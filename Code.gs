@@ -44,6 +44,7 @@ const SHEET_NAMES = {
   Events: "Events",
   Wishlist: "Wishlist",
   Settings: "Settings",
+  HeroSlides: "HeroSlides",
 };
 
 /**
@@ -359,6 +360,26 @@ function getOrCreateSettingsSheet() {
   return sheet;
 }
 
+/** Returns the HeroSlides sheet, creating + seeding it with 3 sample slides
+ *  if it doesn't exist yet (self-heals for dashboards set up before this
+ *  feature existed — addRow/deleteRow/uploadImage already work on any
+ *  sheet generically, this just guarantees the sheet is there to begin with). */
+function getOrCreateHeroSlidesSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAMES.HeroSlides);
+  if (sheet) return sheet;
+
+  sheet = ss.insertSheet(SHEET_NAMES.HeroSlides);
+  sheet.getRange(1, 1, 1, 2).setValues([["id", "image"]]).setFontWeight("bold");
+  sheet.getRange(2, 1, 3, 2).setValues([
+    ["hero1", "https://picsum.photos/seed/psshero/1600/700"],
+    ["hero2", "https://picsum.photos/seed/psshero2/1600/700"],
+    ["hero3", "https://picsum.photos/seed/psshero3/1600/700"],
+  ]);
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
 /** Reads Settings as a flat {key: value} object, filling in any key that's
  *  missing from the sheet (e.g. a newly-added setting) with its default. */
 function getSettingsMap() {
@@ -518,6 +539,15 @@ function setupDashboardSheets() {
       headers: ["key", "value"],
       rows: Object.keys(DEFAULT_SETTINGS).map((k) => [k, DEFAULT_SETTINGS[k]]),
     },
+    {
+      name: SHEET_NAMES.HeroSlides,
+      headers: ["id", "image"],
+      rows: [
+        ["hero1", "https://picsum.photos/seed/psshero/1600/700"],
+        ["hero2", "https://picsum.photos/seed/psshero2/1600/700"],
+        ["hero3", "https://picsum.photos/seed/psshero3/1600/700"],
+      ],
+    },
   ];
 
   sheetDefs.forEach((def) => {
@@ -565,6 +595,7 @@ function upgradeDashboardSheets() {
   addIdColumnIfMissing(SHEET_NAMES.Leaderboard, "lb");
   addColumnsIfMissing(SHEET_NAMES.Events, ["rulesLink", "registerLink"]);
   getOrCreateSettingsSheet(); // creates + seeds "Settings" if it doesn't exist yet
+  getOrCreateHeroSlidesSheet(); // creates + seeds "HeroSlides" if it doesn't exist yet
   Logger.log("Upgrade selesai.");
 }
 
