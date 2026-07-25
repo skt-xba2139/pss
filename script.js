@@ -1206,18 +1206,29 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminCRUD();
   initThemeCustomizer();
 
-  renderHome();
-  renderPustaka();
-  renderElibrary();
-  renderLeaderboard();
-  renderCarta();
-  renderKalendar();
-  renderWakaf();
-
   if (!USING_LIVE_BACKEND()) {
     console.info(
       "%cMod Demo Aktif","color:#f5c518;font-weight:bold;",
       "\nTiada Google Apps Script URL dikonfigurasi. Dashboard menggunakan data contoh (MOCK).\nKemas kini CONFIG.APPS_SCRIPT_URL dalam script.js untuk sambung ke Google Sheet sebenar."
     );
   }
+
+  // Keep the loading overlay up until every section has fetched its real
+  // data, so visitors never see stale placeholder content flash before the
+  // live Google Sheet data arrives. A hard timeout guarantees the overlay
+  // still lifts (showing whatever loaded) even if one fetch hangs/fails.
+  const allRendered = Promise.all([
+    renderHome(),
+    renderPustaka(),
+    renderElibrary(),
+    renderLeaderboard(),
+    renderCarta(),
+    renderKalendar(),
+    renderWakaf(),
+  ]);
+  const safetyTimeout = new Promise((resolve) => setTimeout(resolve, 8000));
+
+  Promise.race([allRendered, safetyTimeout]).then(() => {
+    document.getElementById("appLoadingOverlay").classList.add("hidden");
+  });
 });

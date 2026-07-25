@@ -10,6 +10,17 @@
 </head>
 <body>
 
+<!-- ===================== INITIAL LOAD OVERLAY ===================== -->
+<!-- Hides all content (including the static placeholder text below) until
+     every section has finished fetching real data from Google Sheets, so
+     visitors never see stale/placeholder content flash before the real
+     data arrives. Removed by script.js once all renders resolve. -->
+<div class="app-loading-overlay" id="appLoadingOverlay">
+  <div class="app-loading-mark">PSS<span>.</span></div>
+  <div class="app-loading-spinner"></div>
+  <div class="app-loading-text">Memuatkan data...</div>
+</div>
+
 <!-- ===================== MOBILE TOPBAR ===================== -->
 <header class="mobile-topbar">
   <button id="hamburgerBtn" class="hamburger-btn" aria-label="Buka menu">
