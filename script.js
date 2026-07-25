@@ -270,6 +270,47 @@ function fileToDataUrl(file) {
   });
 }
 
+/**
+ * Compresses/resizes an image file entirely client-side (via <canvas>)
+ * before it's ever uploaded — this shrinks both the upload payload and the
+ * final file stored in Drive far more than anything the backend could do,
+ * since Apps Script has no image-processing library of its own. Downscales
+ * to at most maxDimension on the longest side and re-encodes as JPEG at
+ * the given quality (0–1). Falls back to the original file if the browser
+ * can't decode it as an image for any reason (exotic format, corrupt file).
+ */
+function compressImageFile(file, { maxDimension = 1600, quality = 0.72 } = {}) {
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      let { width, height } = img;
+      if (width > maxDimension || height > maxDimension) {
+        const scale = maxDimension / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+
+    img.onerror = async () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(await fileToDataUrl(file)); // fallback: upload the original, uncompressed
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 const CRUD = {
   Announcements: {
     render: () => renderHome(),
@@ -496,7 +537,9 @@ async function handleDeleteClick(sheet, id) {
 }
 
 async function handleImageFileChosen(file, sheet, row, column) {
-  const dataUrl = await fileToDataUrl(file);
+  showToast("Sedang memampatkan gambar...");
+  const dataUrl = await compressImageFile(file);
+  const compressedFilename = file.name.replace(/\.[^.]+$/, "") + ".jpg";
   const cfg = CRUD[sheet];
 
   if (isDemo()) {
@@ -507,7 +550,7 @@ async function handleImageFileChosen(file, sheet, row, column) {
   }
 
   showToast("Sedang memuat naik gambar...");
-  const result = await postToSheet({ action: "uploadImage", dataUrl, filename: file.name, sheet, row, column });
+  const result = await postToSheet({ action: "uploadImage", dataUrl, filename: compressedFilename, sheet, row, column });
   if (result.status === "ok") {
     showToast("Gambar berjaya dimuat naik.");
     cfg.render();

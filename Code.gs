@@ -305,11 +305,22 @@ function handleUploadImage(payload) {
   return { status: "ok", url: url };
 }
 
+// All admin image uploads go into this specific Drive folder. Must be
+// owned by (or shared as Editor with) whichever Google account the Web App
+// is deployed to run as ("Execute as: Me" in the deployment settings) —
+// otherwise DriveApp.getFolderById() below throws and we fall back to the
+// auto-created-by-name folder instead of hard-failing every upload.
+const UPLOADS_FOLDER_ID = "1I8My20jTB2p-VQC072SrIaA5GDnAyt8t";
+
 function getOrCreateUploadsFolder() {
-  const folderName = "PSS Dashboard Uploads";
-  const existing = DriveApp.getFoldersByName(folderName);
-  if (existing.hasNext()) return existing.next();
-  return DriveApp.createFolder(folderName);
+  try {
+    return DriveApp.getFolderById(UPLOADS_FOLDER_ID);
+  } catch (err) {
+    const folderName = "PSS Dashboard Uploads";
+    const existing = DriveApp.getFoldersByName(folderName);
+    if (existing.hasNext()) return existing.next();
+    return DriveApp.createFolder(folderName);
+  }
 }
 
 // ============================================================================
@@ -634,7 +645,15 @@ function addColumnsIfMissing(sheetName, columnNames) {
 // ============================================================================
 
 function getSheet(name) {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  if (sheet) return sheet;
+
+  // Self-heal sheets that have a known auto-create routine, so a newly
+  // shipped feature works immediately on first use — no manual
+  // "upgradeDashboardSheets" run required first.
+  if (name === SHEET_NAMES.Settings) return getOrCreateSettingsSheet();
+  if (name === SHEET_NAMES.HeroSlides) return getOrCreateHeroSlidesSheet();
+  return null;
 }
 
 function getHeaders(sheet) {
