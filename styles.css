@@ -138,6 +138,24 @@ a { text-decoration: none; color: inherit; }
 .app-loading-overlay::before { background: var(--red); top: -220px; left: -180px; }
 .app-loading-overlay::after { background: var(--blue); bottom: -240px; right: -180px; animation-delay: -5.5s; }
 
+/* soft pulsing halo sitting behind the icon ring — gives the whole mark a
+   gentle "breathing light" presence instead of a flat static badge */
+.app-loading-halo {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--red-rgb), 0.28), transparent 70%);
+  filter: blur(10px);
+  animation: halo-breathe 2.6s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes halo-breathe {
+  0%, 100% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
 .app-loading-icon-wrap {
   position: relative;
   width: 92px;
@@ -178,12 +196,24 @@ a { text-decoration: none; color: inherit; }
 }
 
 .app-loading-mark {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   text-align: center;
   z-index: 1;
+}
+.app-loading-mark-line {
+  font-weight: 800;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: mark-line-in 0.6s var(--ease) forwards;
+}
+.app-loading-mark-line-1 { font-size: 16px; letter-spacing: 0.3px; animation-delay: 0.1s; }
+.app-loading-mark-line-2 { font-size: 12px; font-weight: 600; color: var(--text-secondary); animation-delay: 0.3s; }
+@keyframes mark-line-in {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .app-loading-bar {
@@ -584,6 +614,41 @@ a { text-decoration: none; color: inherit; }
 
 .hero-media { position: absolute; inset: 0; z-index: 1; }
 .hero-media img { width: 100%; height: 100%; object-fit: cover; }
+
+/* multiple hero slides stack in the same box; only .active is visible,
+   crossfading via opacity transition (cycled by JS every few seconds) */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.hero-slide.active { opacity: 1; z-index: 2; }
+
+/* admin-only sections (hidden for regular visitors, shown in Mod Admin) */
+.admin-only-block { display: none; }
+.admin-mode .admin-only-block { display: block; }
+
+.hero-slides-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 6px 4px 10px;
+}
+.hero-slide-thumb {
+  position: relative;
+  flex: 0 0 150px;
+  height: 96px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: var(--bg-panel);
+}
+.hero-slide-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.hero-slides-strip .add-tile { flex: 0 0 150px; height: 96px; min-height: 0; }
+.hero-slides-strip .add-tile .icon { width: 18px; height: 18px; }
+.hero-slides-strip .add-tile span { font-size: 11px; }
 
 /* cursor-following spotlight — a soft light that tracks the mouse, driven by
    --spot-x/--spot-y (set via JS in initHeroSpotlight) */
@@ -1658,4 +1723,22 @@ a { text-decoration: none; color: inherit; }
 :root[data-theme="light"] .form-field select {
   background: rgba(0,0,0,0.03);
   color: var(--text-primary);
+}
+
+/* ==========================================================================
+   DRAG-TO-REORDER ("snap") — admin-mode only affordance and drag feedback
+   ========================================================================== */
+
+.admin-mode .glass-card[draggable="true"],
+.admin-mode .book-card[draggable="true"],
+.admin-mode .lb-row[draggable="true"],
+.admin-mode .hero-slide-thumb[draggable="true"] {
+  cursor: grab;
+}
+.admin-mode [draggable="true"]:active { cursor: grabbing; }
+
+[draggable="true"].dragging {
+  opacity: 0.35;
+  outline: 2px dashed var(--gold);
+  outline-offset: 2px;
 }

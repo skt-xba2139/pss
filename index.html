@@ -27,11 +27,15 @@
      visitors never see stale/placeholder content flash before the real
      data arrives. Removed by script.js once all renders resolve. -->
 <div class="app-loading-overlay" id="appLoadingOverlay">
+  <div class="app-loading-halo"></div>
   <div class="app-loading-icon-wrap">
     <div class="app-loading-icon-ring"></div>
     <svg class="app-loading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2-1 5-1 7 .5v13c-2-1.5-5-1.5-7-.5z"/><path d="M21 5.5c-2-1-5-1-7 .5v13c2-1.5 5-1.5 7-.5z"/></svg>
   </div>
-  <div class="app-loading-mark">Pusat Sumber Sekolah</div>
+  <div class="app-loading-mark">
+    <span class="app-loading-mark-line app-loading-mark-line-1">Perpustakaan Ibnu Sina</span>
+    <span class="app-loading-mark-line app-loading-mark-line-2">SK Tangkungon Telupid</span>
+  </div>
   <div class="app-loading-bar"></div>
   <div class="app-loading-text">Memuatkan data...</div>
 </div>
@@ -138,12 +142,9 @@
     <!-- ============ HOME / BULLETIN ============ -->
     <section class="page active" id="page-home">
       <div class="hero" id="heroBanner">
-        <div class="hero-media">
-          <img src="https://picsum.photos/seed/psshero/1600/700" alt="Buletin Pengumuman">
+        <div class="hero-media" id="heroMedia">
+          <!-- .hero-slide <img> elements injected here by renderHeroSlides(), crossfading automatically -->
           <div class="hero-gradient"></div>
-          <button type="button" class="img-edit-trigger hero-img-edit-btn" id="heroImgEditBtn" data-sheet="Announcements" data-row="1" data-col="image" title="Tukar gambar hero">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/><circle cx="12" cy="13" r="3.5"/></svg>
-          </button>
         </div>
         <div class="hero-content">
           <div class="hero-tag-row">
@@ -171,6 +172,14 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <div class="section-block admin-only-block" id="heroSlidesManager">
+        <div class="section-heading">
+          <h2>Slaid Gambar Hero</h2>
+          <span class="section-sub">Gambar bertukar secara automatik setiap 5 saat pada banner di atas</span>
+        </div>
+        <div class="hero-slides-strip" id="heroSlidesStrip"><!-- populated by JS: renderHeroSlides() --></div>
       </div>
 
       <div class="section-block">
