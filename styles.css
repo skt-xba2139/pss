@@ -1731,6 +1731,18 @@ a { text-decoration: none; color: inherit; }
   border-color: rgba(255,255,255,0.25);
 }
 
+/* The modal-overlay scrim behind every dialog stays dark in BOTH themes
+   (deliberate — it's what focuses attention on the dialog), but .modal-box
+   itself used --glass-fill-strong, which in light mode is only a barely-
+   there dark tint. That let the dark scrim bleed straight through, so the
+   box read as dark while its text correctly flipped to dark-on-light
+   colors — dark-on-dark. Give light mode a properly opaque light surface. */
+:root[data-theme="light"] .modal-box {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 :root[data-theme="light"] .modal-box input,
 :root[data-theme="light"] .form-field input,
 :root[data-theme="light"] .form-field textarea,
@@ -1746,10 +1758,33 @@ a { text-decoration: none; color: inherit; }
 .admin-mode .glass-card[draggable="true"],
 .admin-mode .book-card[draggable="true"],
 .admin-mode .lb-row[draggable="true"],
-.admin-mode .hero-slide-thumb[draggable="true"] {
+.admin-mode .hero-slide-thumb[draggable="true"],
+.admin-mode .home-section[draggable="true"] {
   cursor: grab;
 }
 .admin-mode [draggable="true"]:active { cursor: grabbing; }
+
+/* whole page-sections (Hero, Hero Slides, Marquee, Pengumuman Lain) can be
+   dragged into a new order on the Home page too, not just cards inside a
+   grid — a dashed highlight on hover signals this since these sections
+   have a lot of interactive content and wouldn't otherwise look draggable */
+.admin-mode .home-section {
+  transition: outline-color 0.2s var(--ease), outline-offset 0.2s var(--ease);
+  outline: 2px dashed transparent;
+  outline-offset: 0px;
+  border-radius: var(--radius-lg);
+}
+.admin-mode .home-section:hover {
+  outline-color: rgba(245, 197, 24, 0.45);
+  outline-offset: 6px;
+}
+.home-section.dragging { opacity: 0.4; }
+/* restore normal cursors for anything actually interactive/editable inside
+   a draggable section, instead of inheriting its grab cursor */
+.admin-mode .home-section [contenteditable="true"] { cursor: text; }
+.admin-mode .home-section button,
+.admin-mode .home-section a,
+.admin-mode .home-section input { cursor: pointer; }
 
 [draggable="true"].dragging {
   opacity: 0.35;

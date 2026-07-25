@@ -630,6 +630,28 @@ function handleAddTileClick(el) {
 // working after any re-render (grids get replaced via innerHTML constantly).
 // ==========================================================================
 
+/**
+ * Lets admins drag the Home page's whole top-level sections (Hero, Hero
+ * Slides manager, Marquee, Pengumuman Lain) into a new order — the same
+ * "snap" reordering as the card grids, just applied to entire sections.
+ * Unlike the grids (rebuilt from fetched data every render), these are
+ * static DOM nodes, so the saved order is applied by physically moving
+ * them once here, rather than by re-sorting an array before rendering.
+ */
+function initHomeSectionSorting() {
+  const container = document.getElementById("page-home");
+  const orderStr = SETTINGS && SETTINGS.order_home_sections;
+
+  if (orderStr) {
+    orderStr.split(",").filter(Boolean).forEach((id) => {
+      const el = container.querySelector(`.home-section[data-home-section-id="${id}"]`);
+      if (el) container.appendChild(el);
+    });
+  }
+
+  makeSortable(container, "home_sections", ".home-section", "homeSectionId", "vertical");
+}
+
 function initTiltEffect() {
   const TILT_SELECTOR = ".book-card, .glass-card";
   const MAX_DEG = 7;
@@ -1032,6 +1054,10 @@ function makeSortable(container, orderKey, cardSelector, idAttr, layout = "grid"
 
     card.addEventListener("dragstart", (e) => {
       if (!document.body.classList.contains("admin-mode")) { e.preventDefault(); return; }
+      // Don't hijack text selection when the admin is editing a
+      // contenteditable field inside a draggable section (e.g. the hero
+      // title) — let that behave like normal text selection instead.
+      if (e.target.closest('[contenteditable="true"]')) { e.preventDefault(); return; }
       draggedEl = card;
       e.dataTransfer.effectAllowed = "move";
       requestAnimationFrame(() => card.classList.add("dragging"));
@@ -1856,5 +1882,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   Promise.race([allRendered, safetyTimeout]).then(() => {
     document.getElementById("appLoadingOverlay").classList.add("hidden");
+    initHomeSectionSorting();
   });
 });

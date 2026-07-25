@@ -141,7 +141,7 @@
 
     <!-- ============ HOME / BULLETIN ============ -->
     <section class="page active" id="page-home">
-      <div class="hero" id="heroBanner">
+      <div class="hero home-section" id="heroBanner" data-home-section-id="hero">
         <div class="hero-media" id="heroMedia">
           <!-- .hero-slide <img> elements injected here by renderHeroSlides(), crossfading automatically -->
           <div class="hero-gradient"></div>
@@ -174,7 +174,7 @@
         </div>
       </div>
 
-      <div class="section-block admin-only-block" id="heroSlidesManager">
+      <div class="section-block admin-only-block home-section" id="heroSlidesManager" data-home-section-id="heroSlides">
         <div class="section-heading">
           <h2>Slaid Gambar Hero</h2>
           <span class="section-sub">Gambar bertukar secara automatik setiap 5 saat pada banner di atas</span>
@@ -182,7 +182,7 @@
         <div class="hero-slides-strip" id="heroSlidesStrip"><!-- populated by JS: renderHeroSlides() --></div>
       </div>
 
-      <div class="section-block">
+      <div class="section-block home-section" data-home-section-id="marquee">
         <div class="section-heading">
           <h2>Lampiran Aktiviti Terkini</h2>
           <span class="section-sub">Kemas kini automatik dari Google Sheet</span>
@@ -198,7 +198,7 @@
         </div>
       </div>
 
-      <div class="section-block">
+      <div class="section-block home-section" data-home-section-id="announcements">
         <div class="section-heading">
           <h2>Pengumuman Lain</h2>
         </div>
