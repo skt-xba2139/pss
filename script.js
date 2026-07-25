@@ -682,6 +682,30 @@ function initHomeSectionSorting() {
   makeSortable(container, "home_sections", ".home-section", "homeSectionId", "vertical");
 }
 
+/**
+ * Lets admins drag the sidebar's nav items (Utama, Pustaka, E-Library, ...)
+ * into a new order, persisted via the Settings sheet the same way as the
+ * Home page's section order. Reuses each item's existing data-section
+ * attribute as its sortable id — no new markup needed. Must run AFTER
+ * SETTINGS has loaded (see the DOMContentLoaded handler at the bottom of
+ * this file), and positionNavPill() needs a fresh call afterward since the
+ * active item's on-screen position may have just changed.
+ */
+function initNavSorting() {
+  const container = document.querySelector(".sidebar-nav");
+  const orderStr = SETTINGS && SETTINGS.order_nav_items;
+
+  if (orderStr) {
+    orderStr.split(",").filter(Boolean).forEach((section) => {
+      const el = container.querySelector(`.nav-item[data-section="${section}"]`);
+      if (el) container.appendChild(el);
+    });
+  }
+
+  makeSortable(container, "nav_items", ".nav-item", "section", "vertical");
+  positionNavPill();
+}
+
 function initTiltEffect() {
   const TILT_SELECTOR = ".book-card, .glass-card";
   // Broader than TILT_SELECTOR — every "glass" surface gets a cursor-follow
@@ -1683,32 +1707,69 @@ async function renderPustaka() {
       )
       .join("");
 
+  // Always start with a single, true copy per row — duplicating up front
+  // (the old approach) showed the exact same cover twice side by side the
+  // moment a category had too few books to fill the row's width, since
+  // there was nothing off-screen for the "loop" to hide. Render once here;
+  // duplication only happens afterward, and only for rows that actually
+  // need it (see the measuring pass below).
   container.innerHTML = rows
-    .map(
-      (row) => `
+    .map((row) => {
+      // Keep the drift speed visually consistent across rows regardless of
+      // how many books they hold — more books would otherwise mean a
+      // longer track covering the same duration, reading as "faster".
+      const driftDuration = Math.max(row.items.length * 3.5, 14).toFixed(1) + "s";
+      return `
     <div class="carousel-row">
       <h3 class="carousel-row-title">${row.category}</h3>
-      <div class="carousel-scroller" data-category="${row.category}">
-        ${
-          // A category with only 4-5 books almost never overflows a wide
-          // desktop viewport, so there's nothing for the auto-scroll drift
-          // to actually scroll — it silently does nothing (not a bug, just
-          // nothing to scroll). Duplicating the row's cards guarantees real
-          // overflow so the Netflix-style drift always has room to move,
-          // the same fix already applied to the Home marquee. But each
-          // duplicate card carries its own delete/upload button sharing the
-          // same data-book-id, so — exactly as with the marquee — only do
-          // this for regular visitors; admin mode always shows one true,
-          // editable copy per book.
-          inAdminMode ? buildBooks(row.items) : buildBooks(row.items) + buildBooks(row.items)
-        }
-        ${addTileHTML("Books", "Tambah Buku", { category: row.category })}
+      <div class="carousel-viewport" data-category="${row.category}">
+        <div class="carousel-track" style="--drift-duration:${driftDuration}">
+          ${buildBooks(row.items)}
+          ${addTileHTML("Books", "Tambah Buku", { category: row.category })}
+        </div>
       </div>
-    </div>`
-    )
+    </div>`;
+    })
     .join("");
 
+  // Now that the single copy is actually laid out, measure each row and
+  // repeat its books just enough times that the track is always wider than
+  // the viewport — a category with only 1-3 books needs several repeats to
+  // get there, a category with 15 only needs the usual 2. This guarantees
+  // the row ALWAYS has genuine off-screen content to drift through (so it
+  // never stops moving), while never showing the same cover sitting twice
+  // side by side with nothing to hide it (the original "double" bug: a
+  // fixed 2x duplication wasn't enough overflow for short categories).
+  // The loop stays seamless at any repeat count because the CSS animation
+  // travels exactly one repeat's width (calc(-100% / var(--carousel-
+  // repeat))), not a hardcoded -50% — see .is-drifting in styles.css.
+  // Admin mode never repeats (each copy's delete/upload button would
+  // otherwise share the same data-book-id).
+  if (!inAdminMode) {
+    const viewports = container.querySelectorAll(".carousel-viewport");
+    rows.forEach((row, i) => {
+      const viewport = viewports[i];
+      if (!viewport) return;
+      const track = viewport.querySelector(".carousel-track");
+      const singleSetWidth = track.scrollWidth;
+      if (singleSetWidth <= 0) return;
+
+      const repeatCount = Math.min(
+        12,
+        Math.max(2, Math.ceil(viewport.clientWidth / singleSetWidth) + 1)
+      );
+      for (let r = 1; r < repeatCount; r++) {
+        track.insertAdjacentHTML("beforeend", buildBooks(row.items));
+      }
+      track.style.setProperty("--carousel-repeat", repeatCount);
+      track.classList.add("is-drifting");
+    });
+  }
+
   // click card -> open detail modal; click button/admin-control -> handled separately
+  // (wired last, after any duplication above, so the duplicated copies —
+  // which visitors can genuinely hover/click as they drift into view — get
+  // working handlers too, not just the original set.)
   container.querySelectorAll(".book-card").forEach((card) => {
     card.addEventListener("click", (e) => {
       if (e.target.closest(".item-delete-btn, .img-edit-trigger, .book-borrow-btn")) return;
@@ -1722,51 +1783,9 @@ async function renderPustaka() {
     });
   });
 
-  container.querySelectorAll(".carousel-scroller").forEach((scroller) => {
-    makeSortable(scroller, `books_${slugifyOrderKey(scroller.dataset.category)}`, ".book-card", "bookId", "horizontal");
-  });
-
-  initCarouselAutoScroll(container);
-}
-
-/**
- * Netflix-style continuous row movement: each carousel row slowly drifts
- * sideways on its own, reversing direction at either end, and pauses the
- * instant the cursor enters it (cards still enlarge via the existing hover
- * CSS). Runs via requestAnimationFrame and self-terminates the moment its
- * row is removed from the DOM (e.g. on the next renderPustaka() re-render),
- * so re-rendering never leaks orphaned animation loops.
- */
-function initCarouselAutoScroll(container) {
-  container.querySelectorAll(".carousel-scroller").forEach((scroller) => {
-    let direction = 1;
-    let paused = false;
-    // scrollLeft is exposed/rounded as an integer by the browser, so
-    // accumulating a sub-1px step directly on it (scroller.scrollLeft += 0.6)
-    // never moves — each read-modify-write starts from the rounded-down
-    // value again. Track the true fractional position separately instead,
-    // and only ever write (never read back) it into scrollLeft.
-    let virtualScroll = scroller.scrollLeft;
-
-    scroller.addEventListener("mouseenter", () => { paused = true; });
-    scroller.addEventListener("mouseleave", () => { paused = false; });
-    scroller.addEventListener("touchstart", () => { paused = true; }, { passive: true });
-
-    const step = () => {
-      if (!scroller.isConnected) return; // row was re-rendered/removed — stop looping
-
-      if (!paused) {
-        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-        if (maxScroll > 0) {
-          virtualScroll += direction * 0.6;
-          if (virtualScroll >= maxScroll) { virtualScroll = maxScroll; direction = -1; }
-          else if (virtualScroll <= 0) { virtualScroll = 0; direction = 1; }
-          scroller.scrollLeft = virtualScroll;
-        }
-      }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+  container.querySelectorAll(".carousel-track").forEach((track) => {
+    const category = track.closest(".carousel-viewport").dataset.category;
+    makeSortable(track, `books_${slugifyOrderKey(category)}`, ".book-card", "bookId", "horizontal");
   });
 }
 
@@ -2307,5 +2326,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(() => {
       document.getElementById("appLoadingOverlay").classList.add("hidden");
       initHomeSectionSorting();
+      initNavSorting();
     });
 });
