@@ -45,7 +45,16 @@ const ICONS = {
 function icon(name, extraClass = "") {
   const svg = ICONS[name];
   if (!svg) return "";
-  return svg.replace("<svg ", `<svg class="icon ${extraClass}" `);
+  // Some icons (e.g. "spinner") already carry their own class="..." (like
+  // icon-spin for the rotation animation) — merge into ONE class attribute
+  // instead of naively injecting a second, which HTML parsing would silently
+  // drop, quietly breaking things like the spin animation.
+  const existingClassMatch = svg.match(/class="([^"]*)"/);
+  const mergedClass = ["icon", existingClassMatch ? existingClassMatch[1] : "", extraClass].filter(Boolean).join(" ");
+  if (existingClassMatch) {
+    return svg.replace(/class="[^"]*"/, `class="${mergedClass}"`);
+  }
+  return svg.replace("<svg ", `<svg class="${mergedClass}" `);
 }
 
 // ==========================================================================
@@ -811,6 +820,30 @@ function setAdminMode(on) {
 // live (updates CSS variables), persisted per-browser via localStorage.
 // ==========================================================================
 
+// ==========================================================================
+// LIGHT / DARK MODE TOGGLE — persisted per-browser via localStorage; the
+// choice is also applied by an inline <script> in <head> before first paint
+// so a saved "light" preference never flashes dark-then-light on load.
+// ==========================================================================
+
+const THEME_MODE_KEY = "pss-theme-mode";
+
+function initThemeModeToggle() {
+  const applyThemeMode = (mode) => {
+    if (mode === "light") document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem(THEME_MODE_KEY, mode);
+  };
+
+  const toggleThemeMode = () => {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    applyThemeMode(isLight ? "dark" : "light");
+  };
+
+  document.getElementById("themeModeToggle").addEventListener("click", toggleThemeMode);
+  document.getElementById("themeModeToggleMobile").addEventListener("click", toggleThemeMode);
+}
+
 const DEFAULT_ACCENT = "#e50914";
 const ACCENT_STORAGE_KEY = "pss-accent-color";
 
@@ -1164,6 +1197,49 @@ async function renderPustaka() {
       reserveBook(btn.dataset.bookId, btn);
     });
   });
+
+  initCarouselAutoScroll(container);
+}
+
+/**
+ * Netflix-style continuous row movement: each carousel row slowly drifts
+ * sideways on its own, reversing direction at either end, and pauses the
+ * instant the cursor enters it (cards still enlarge via the existing hover
+ * CSS). Runs via requestAnimationFrame and self-terminates the moment its
+ * row is removed from the DOM (e.g. on the next renderPustaka() re-render),
+ * so re-rendering never leaks orphaned animation loops.
+ */
+function initCarouselAutoScroll(container) {
+  container.querySelectorAll(".carousel-scroller").forEach((scroller) => {
+    let direction = 1;
+    let paused = false;
+    // scrollLeft is exposed/rounded as an integer by the browser, so
+    // accumulating a sub-1px step directly on it (scroller.scrollLeft += 0.6)
+    // never moves — each read-modify-write starts from the rounded-down
+    // value again. Track the true fractional position separately instead,
+    // and only ever write (never read back) it into scrollLeft.
+    let virtualScroll = scroller.scrollLeft;
+
+    scroller.addEventListener("mouseenter", () => { paused = true; });
+    scroller.addEventListener("mouseleave", () => { paused = false; });
+    scroller.addEventListener("touchstart", () => { paused = true; }, { passive: true });
+
+    const step = () => {
+      if (!scroller.isConnected) return; // row was re-rendered/removed — stop looping
+
+      if (!paused) {
+        const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+        if (maxScroll > 0) {
+          virtualScroll += direction * 0.6;
+          if (virtualScroll >= maxScroll) { virtualScroll = maxScroll; direction = -1; }
+          else if (virtualScroll <= 0) { virtualScroll = 0; direction = 1; }
+          scroller.scrollLeft = virtualScroll;
+        }
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
 }
 
 function findBook(bookId, rows) {
@@ -1438,6 +1514,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCustomCssModal();
   initTiltEffect();
   initHeroSpotlight();
+  initThemeModeToggle();
 
   if (!USING_LIVE_BACKEND()) {
     console.info(

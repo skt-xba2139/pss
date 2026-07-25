@@ -1529,3 +1529,133 @@ a { text-decoration: none; color: inherit; }
   .admin-toolbar-legend { display: none; } /* keep mobile bar compact */
   .admin-mode .main-content { padding-top: calc(var(--topbar-h) + 56px + 20px); }
 }
+
+/* ==========================================================================
+   LIGHT / DARK MODE TOGGLE
+   ========================================================================== */
+
+.theme-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  transition: all 0.2s var(--ease);
+}
+.theme-mode-toggle .icon-sun,
+.theme-mode-toggle .icon-moon {
+  width: 18px;
+  height: 18px;
+  display: none;
+}
+/* dark mode (default): show the sun icon — clicking it promises daylight */
+:root:not([data-theme="light"]) .theme-mode-toggle .icon-sun { display: block; }
+/* light mode: show the moon icon instead */
+:root[data-theme="light"] .theme-mode-toggle .icon-moon { display: block; }
+
+.theme-mode-toggle--inline {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-fill);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border-glass);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.theme-mode-toggle--inline:hover { color: var(--text-primary); border-color: var(--gold); box-shadow: var(--glow-gold-sm); }
+.theme-mode-toggle-label::after { content: "Mod Gelap"; }
+:root[data-theme="light"] .theme-mode-toggle-label::after { content: "Mod Terang"; }
+.theme-mode-toggle-label { font-size: 0; }
+.theme-mode-toggle-label::after { font-size: 13px; }
+
+#themeModeToggleMobile {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================================================
+   LIGHT MODE — full token + surface overrides. Accent colors (red/gold)
+   stay the same in both modes; everything that represents dark "page
+   chrome" (backgrounds, glass fills, borders, text) flips to a light
+   equivalent here.
+   ========================================================================== */
+
+:root[data-theme="light"] {
+  --bg-black: #f4f4f6;
+  --bg-deep: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-panel-2: #eef0f3;
+  --bg-glass: rgba(0, 0, 0, 0.035);
+  --border-glass: rgba(0, 0, 0, 0.09);
+
+  --glass-fill: linear-gradient(145deg, rgba(0,0,0,0.035), rgba(0,0,0,0.01));
+  --glass-fill-strong: linear-gradient(145deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
+  --glass-border: rgba(0, 0, 0, 0.10);
+  --glass-border-hover: rgba(0, 0, 0, 0.22);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.7);
+  --glass-shadow-hover: 0 20px 48px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+
+  --text-primary: #14151a;
+  --text-secondary: #4a4d57;
+  --text-muted: #8a8d99;
+}
+
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -10%, rgba(var(--red-rgb),0.06), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 100% 0%, rgba(52,152,219,0.05), transparent 55%),
+    radial-gradient(ellipse at top, #ffffff 0%, #eef0f3 60%);
+}
+:root[data-theme="light"] body::before { opacity: 0.02; }
+
+:root[data-theme="light"] .sidebar {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(247,247,249,0.92) 100%);
+  border-right-color: rgba(0,0,0,0.08);
+  box-shadow: 12px 0 40px rgba(0,0,0,0.06);
+}
+:root[data-theme="light"] .nav-item:hover { background: rgba(0,0,0,0.04); }
+:root[data-theme="light"] .mobile-topbar {
+  background: rgba(255,255,255,0.88);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+:root[data-theme="light"] .page-header h1 {
+  background: linear-gradient(135deg, #14151a 30%, #4a4d57 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+:root[data-theme="light"] .glass-card::before {
+  background: radial-gradient(circle, rgba(0,0,0,0.05), transparent 65%);
+}
+:root[data-theme="light"] .glass-card::after,
+:root[data-theme="light"] .btn::after {
+  background: linear-gradient(115deg, transparent 40%, rgba(0,0,0,0.05) 50%, transparent 60%);
+}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+:root[data-theme="light"] .app-loading-overlay { background: radial-gradient(ellipse at top, #ffffff 0%, #eef0f3 60%); }
+:root[data-theme="light"] .app-loading-mark { color: var(--text-primary); }
+:root[data-theme="light"] .book-card { background: var(--bg-panel-2); }
+:root[data-theme="light"] .css-textarea { background: #f7f7f9; color: #14151a; }
+/* the hero always sits on a photo behind a dark scrim, in BOTH themes — its
+   text/buttons must stay light-colored even when the rest of the page
+   flips to light mode, or it becomes unreadable against the dark photo. */
+:root[data-theme="light"] .hero-title,
+:root[data-theme="light"] .hero-desc,
+:root[data-theme="light"] .hero-content .btn-ghost {
+  color: #fff;
+}
+:root[data-theme="light"] .hero-content .btn-ghost {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
+}
+
+:root[data-theme="light"] .modal-box input,
+:root[data-theme="light"] .form-field input,
+:root[data-theme="light"] .form-field textarea,
+:root[data-theme="light"] .form-field select {
+  background: rgba(0,0,0,0.03);
+  color: var(--text-primary);
+}
