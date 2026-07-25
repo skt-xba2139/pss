@@ -234,7 +234,7 @@ function handleDeleteRow(payload) {
   const rowIndex = findRowIndex(sheet, headers, payload.id);
   if (rowIndex === -1) return { status: "error", error: "Baris tidak dijumpai: " + payload.id };
 
-  sheet.deleteRow(rowIndex + 2); // +1 for header row, +1 to convert 0-based to 1-based
+  sheet.deleteRow(rowIndex + 1); // rowIndex is 0-based into a values array whose [0] is the header row
   return { status: "ok" };
 }
 
