@@ -130,7 +130,7 @@ function handleUpdate(payload) {
   if (!sheet) return { status: "error", error: "Sheet tidak dijumpai: " + payload.sheet };
 
   const headers = getHeaders(sheet);
-  const colIndex = headers.indexOf(payload.column);
+  const colIndex = findColumnIndex(headers, payload.column);
   if (colIndex === -1) return { status: "error", error: "Lajur tidak dijumpai: " + payload.column };
 
   const rowIndex = findRowIndex(sheet, headers, payload.row);
@@ -149,8 +149,8 @@ function handleReserveBook(payload) {
   if (!sheet) return { status: "error", error: "Sheet 'Books' tidak dijumpai." };
 
   const headers = getHeaders(sheet);
-  const idCol = headers.indexOf("id");
-  const reservedCol = headers.indexOf("reserved");
+  const idCol = findColumnIndex(headers, "id");
+  const reservedCol = findColumnIndex(headers, "reserved");
   if (idCol === -1) return { status: "error", error: "Lajur 'id' tiada dalam sheet Books." };
 
   const data = sheet.getDataRange().getValues();
@@ -176,8 +176,8 @@ function handleDonate(payload) {
   if (!sheet) return { status: "error", error: "Sheet 'Wishlist' tidak dijumpai." };
 
   const headers = getHeaders(sheet);
-  const idCol = headers.indexOf("id");
-  const donatedCol = headers.indexOf("donated");
+  const idCol = findColumnIndex(headers, "id");
+  const donatedCol = findColumnIndex(headers, "donated");
   if (idCol === -1 || donatedCol === -1) {
     return { status: "error", error: "Lajur 'id'/'donated' tiada dalam sheet Wishlist." };
   }
@@ -207,15 +207,24 @@ function handleAddRow(payload) {
   if (!sheet) return { status: "error", error: "Sheet tidak dijumpai: " + payload.sheet };
 
   const headers = getHeaders(sheet);
-  const rowData = payload.row || {};
+  const rawRow = payload.row || {};
+
+  // Match submitted field names to headers case-insensitively, same as
+  // every other handler — a caller sending "Title" instead of "title"
+  // still lands in the right column instead of silently being dropped.
+  const rowData = {};
+  Object.keys(rawRow).forEach((k) => { rowData[String(k).toLowerCase()] = rawRow[k]; });
 
   let generatedId = null;
-  if (headers.includes("id") && !rowData.id) {
+  if (findColumnIndex(headers, "id") !== -1 && !rowData.id) {
     generatedId = payload.sheet.toLowerCase() + "_" + new Date().getTime();
     rowData.id = generatedId;
   }
 
-  const orderedValues = headers.map((h) => (rowData[h] !== undefined ? rowData[h] : ""));
+  const orderedValues = headers.map((h) => {
+    const v = rowData[String(h).toLowerCase()];
+    return v !== undefined ? v : "";
+  });
   sheet.appendRow(orderedValues);
 
   return { status: "ok", id: generatedId || rowData.id || null };
@@ -260,13 +269,18 @@ function handleUploadImage(payload) {
   const file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-  const url = "https://drive.google.com/uc?export=view&id=" + file.getId();
+  // "uc?export=view" is unreliable for hotlinking as an <img src> (Google
+  // frequently redirects it to an interstitial/viewer page instead of the
+  // raw bytes). The "thumbnail" endpoint reliably serves actual image data
+  // for anyone-with-link files, so use that instead — at a large enough
+  // size that it still looks sharp as a big hero/cover image.
+  const url = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1600";
 
   if (payload.sheet && payload.row && payload.column) {
     const sheet = getSheet(payload.sheet);
     if (sheet) {
       const headers = getHeaders(sheet);
-      const colIndex = headers.indexOf(payload.column);
+      const colIndex = findColumnIndex(headers, payload.column);
       const rowIndex = findRowIndex(sheet, headers, payload.row);
       if (colIndex !== -1 && rowIndex !== -1) {
         sheet.getRange(rowIndex + 1, colIndex + 1).setValue(url);
@@ -516,13 +530,29 @@ function readSheetAsObjects(sheetName) {
 }
 
 /**
+ * Case-insensitive column lookup — a column reference like "Title" or
+ * "TITLE" will still correctly match a real header of "title". This is the
+ * single source of truth for matching a column name to its index; every
+ * handler above goes through this so a casing mismatch can never again
+ * cause a silent "column not found" failure.
+ */
+function findColumnIndex(headers, columnName) {
+  if (!columnName) return -1;
+  const target = String(columnName).toLowerCase();
+  for (let i = 0; i < headers.length; i++) {
+    if (String(headers[i]).toLowerCase() === target) return i;
+  }
+  return -1;
+}
+
+/**
  * Locates the row index (0-based, excluding header) matching a given
  * identifier. Tries the "id" column first, then "editKey" (Committee),
  * falling back to treating rowKey as a direct 1-based row number.
  */
 function findRowIndex(sheet, headers, rowKey) {
-  const idCol = headers.indexOf("id");
-  const editKeyCol = headers.indexOf("editKey");
+  const idCol = findColumnIndex(headers, "id");
+  const editKeyCol = findColumnIndex(headers, "editKey");
   const data = sheet.getDataRange().getValues();
 
   for (let r = 1; r < data.length; r++) {
