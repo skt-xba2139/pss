@@ -86,17 +86,13 @@
   <!-- ===================== SIDEBAR ===================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-mark" aria-hidden="true">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2-1 5-1 7 .5v13c-2-1.5-5-1.5-7-.5z"/><path d="M21 5.5c-2-1-5-1-7 .5v13c2-1.5 5-1.5 7-.5z"/></svg>
-      </div>
-      <div class="brand-text">
-        <div class="brand-line brand-line-1" contenteditable="false" data-editable="brand-line1" data-setting-key="brand_line1">Pusat Sumber Ibnu Sina</div>
-        <div class="brand-line brand-line-2" contenteditable="false" data-editable="brand-line2" data-setting-key="brand_line2">SK Tangkungon Telupid</div>
-        <div class="brand-line brand-line-3" contenteditable="false" data-editable="brand-line3" data-setting-key="brand_line3">XBA 2139</div>
-      </div>
+      <div class="brand-line brand-line-1" contenteditable="false" data-editable="brand-line1" data-setting-key="brand_line1">Pusat Sumber Ibnu Sina</div>
+      <div class="brand-line brand-line-2" contenteditable="false" data-editable="brand-line2" data-setting-key="brand_line2">SK Tangkungon Telupid</div>
+      <div class="brand-line brand-line-3" contenteditable="false" data-editable="brand-line3" data-setting-key="brand_line3">XBA 2139</div>
     </div>
 
     <nav class="sidebar-nav">
+      <span class="nav-active-pill" id="navActivePill" aria-hidden="true"></span>
       <a href="#" class="nav-item active" data-section="home">
         <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-home-label" data-setting-key="nav_home_label">Utama / Buletin</span><button type="button" class="nav-icon-edit-btn" data-section="home" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
@@ -234,12 +230,7 @@
         <p contenteditable="false" data-editable="page-elibrary-desc" data-setting-key="page_elibrary_desc">Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran</p>
       </div>
 
-      <div class="filter-bar">
-        <button class="chip active" data-filter="all">Semua</button>
-        <button class="chip" data-filter="Kertas Peperiksaan">Kertas Peperiksaan</button>
-        <button class="chip" data-filter="Nota">Nota Digital</button>
-        <button class="chip" data-filter="Pautan">Pautan Pembelajaran</button>
-      </div>
+      <div class="filter-bar" id="elibFilterBar"><!-- populated by JS: renderElibFilters() --></div>
 
       <div class="elibrary-grid" id="elibraryGrid"></div>
     </section>
@@ -336,6 +327,21 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="cssModalCancel">Batal</button>
       <button class="btn btn-primary" id="cssModalSave">Simpan &amp; Terapkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ICON PICKER MODAL (E-Library icons) ===================== -->
+<div class="modal-overlay" id="iconPickerModal">
+  <div class="modal-box" id="iconPickerBox">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      Pilih Ikon
+    </h3>
+    <p>Pilih ikon yang paling sesuai untuk bahan ini.</p>
+    <div class="icon-picker-grid" id="iconPickerGrid"><!-- populated by JS: openIconPicker() --></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="iconPickerCancel">Batal</button>
     </div>
   </div>
 </div>

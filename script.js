@@ -39,6 +39,21 @@ const ICONS = {
   plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
   trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M6 7l1 13.5A1.5 1.5 0 0 0 8.5 22h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/><path d="M10 11v6M14 11v6"/></svg>`,
   camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/><circle cx="12" cy="13" r="3.5"/></svg>`,
+  // ---- E-Library icon-picker preset additions (same minimal line-icon
+  // style as everything above: viewBox 24, stroke currentColor 1.8) ----
+  video: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor" stroke="none"/></svg>`,
+  image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="m4 16 4.5-4.5 3 3L16 10l4 4.5"/></svg>`,
+  globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.8 2.6 4.2 5.7 4.2 9s-1.4 6.4-4.2 9c-2.8-2.6-4.2-5.7-4.2-9s1.4-6.4 4.2-9Z"/></svg>`,
+  graduationCap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2 9l10 5 10-5-10-5Z"/><path d="M6 11.5v4.5c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M20 9v6"/></svg>`,
+  calculator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7.5h8"/><circle cx="8.3" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="15.7" cy="12" r=".9" fill="currentColor" stroke="none"/><circle cx="8.3" cy="16" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="16" r=".9" fill="currentColor" stroke="none"/><circle cx="15.7" cy="16" r=".9" fill="currentColor" stroke="none"/></svg>`,
+  flask: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4"/><path d="M10.5 3v6.5L5 18a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5.5-8.5V3"/><path d="M8 14h8"/></svg>`,
+  code: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 8-5 4 5 4"/><path d="m15 8 5 4-5 4"/></svg>`,
+  headphones: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4.5" height="7" rx="1.5"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.5"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M4 20h16"/></svg>`,
+  archive: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="5" rx="1.3"/><path d="M5 9v9a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18V9"/><path d="M10 13h4"/></svg>`,
+  folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h4l2 2.5h7A1.5 1.5 0 0 1 20 9v8.5A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5Z"/></svg>`,
+  star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3.5 2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7Z"/></svg>`,
+  bookmark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V4.5a1 1 0 0 1 1-1Z"/></svg>`,
 };
 
 /** Returns an icon's raw SVG markup with a shared "icon" class applied. */
@@ -133,13 +148,13 @@ const MOCK = {
   ],
   elibrary: [
     { id: "e1", title: "Kertas Percubaan SPM Matematik 2025", type: "Kertas Peperiksaan", meta: "PDF · 2.4 MB", link: "#" },
-    { id: "e2", title: "Nota Ringkas Sejarah Tingkatan 5", type: "Nota", meta: "PDF · 1.1 MB", link: "#" },
+    { id: "e2", title: "Nota Ringkas Sejarah Tingkatan 5", type: "Nota Digital", meta: "PDF · 1.1 MB", link: "#" },
     { id: "e3", title: "Kertas Percubaan PT3 Sains", type: "Kertas Peperiksaan", meta: "PDF · 1.8 MB", link: "#" },
-    { id: "e4", title: "Portal e-Buku Teks KPM", type: "Pautan", meta: "Pautan Luar", link: "#" },
-    { id: "e5", title: "Nota Bahasa Melayu — Komsas", type: "Nota", meta: "PDF · 900 KB", link: "#" },
+    { id: "e4", title: "Portal e-Buku Teks KPM", type: "Pautan Pembelajaran", meta: "Pautan Luar", link: "#" },
+    { id: "e5", title: "Nota Bahasa Melayu — Komsas", type: "Nota Digital", meta: "PDF · 900 KB", link: "#" },
     { id: "e6", title: "Kertas Percubaan Bahasa Inggeris", type: "Kertas Peperiksaan", meta: "PDF · 2.0 MB", link: "#" },
-    { id: "e7", title: "Perpustakaan Digital Negara", type: "Pautan", meta: "Pautan Luar", link: "#" },
-    { id: "e8", title: "Nota Fizik — Elektrik & Magnet", type: "Nota", meta: "PDF · 1.4 MB", link: "#" },
+    { id: "e7", title: "Perpustakaan Digital Negara", type: "Pautan Pembelajaran", meta: "Pautan Luar", link: "#" },
+    { id: "e8", title: "Nota Fizik — Elektrik & Magnet", type: "Nota Digital", meta: "PDF · 1.4 MB", link: "#" },
   ],
   leaderboard: [
     { id: "lb1", name: "Ahmad Danial", kelas: "5 Cemerlang", score: 128 },
@@ -401,9 +416,20 @@ const CRUD = {
   ELibrary: {
     render: () => renderElibrary(),
     title: "Tambah Bahan E-Library",
+    // "type" is free text (not a fixed select) so a brand-new category
+    // typed here automatically gets its own filter tab next render — the
+    // datalist just suggests categories that already exist, same "auto
+    // connect" convenience as picking one, without limiting to only those 3.
     fields: () => [
       { key: "title", label: "Tajuk", type: "text", required: true },
-      { key: "type", label: "Jenis", type: "select", options: ["Kertas Peperiksaan", "Nota", "Pautan"] },
+      {
+        key: "type",
+        label: "Kategori",
+        type: "text",
+        required: true,
+        placeholder: "cth: Kertas Peperiksaan",
+        datalist: [...new Set(elibraryData.map((i) => i.type).filter(Boolean))],
+      },
       { key: "meta", label: "Maklumat (cth: PDF · 2 MB)", type: "text" },
       { key: "link", label: "Pautan Muat Turun", type: "text", placeholder: "https://..." },
     ],
@@ -658,41 +684,127 @@ function initHomeSectionSorting() {
 
 function initTiltEffect() {
   const TILT_SELECTOR = ".book-card, .glass-card";
+  // Broader than TILT_SELECTOR — every "glass" surface gets a cursor-follow
+  // spotlight (see the WOW MOTION PASS in styles.css), even ones that don't
+  // tilt (list rows, org cards, podium items read oddly if they rotate).
+  const SPOTLIGHT_SELECTOR = ".book-card, .glass-card, .lb-row";
   const MAX_DEG = 7;
-  let activeCard = null;
+  let activeTiltCard = null;
+  let activeSpotCard = null;
 
-  const resetCard = (card) => {
+  const resetTilt = (card) => {
     card.style.setProperty("--tilt-x", "0deg");
     card.style.setProperty("--tilt-y", "0deg");
   };
+  const resetSpot = (card) => {
+    card.style.removeProperty("--spot-x");
+    card.style.removeProperty("--spot-y");
+  };
 
   document.addEventListener("mousemove", (e) => {
-    const card = e.target.closest(TILT_SELECTOR);
-
-    if (card !== activeCard) {
-      if (activeCard) resetCard(activeCard);
-      activeCard = card;
+    const tiltCard = e.target.closest(TILT_SELECTOR);
+    if (tiltCard !== activeTiltCard) {
+      if (activeTiltCard) resetTilt(activeTiltCard);
+      activeTiltCard = tiltCard;
     }
-    if (!card) return;
+    if (tiltCard) {
+      const rect = tiltCard.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      tiltCard.style.setProperty("--tilt-x", (px * MAX_DEG * 2).toFixed(2) + "deg");
+      tiltCard.style.setProperty("--tilt-y", (-py * MAX_DEG * 2).toFixed(2) + "deg");
+    }
 
-    const rect = card.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.setProperty("--tilt-x", (px * MAX_DEG * 2).toFixed(2) + "deg");
-    card.style.setProperty("--tilt-y", (-py * MAX_DEG * 2).toFixed(2) + "deg");
+    const spotCard = e.target.closest(SPOTLIGHT_SELECTOR);
+    if (spotCard !== activeSpotCard) {
+      if (activeSpotCard) resetSpot(activeSpotCard);
+      activeSpotCard = spotCard;
+    }
+    if (spotCard) {
+      const rect = spotCard.getBoundingClientRect();
+      const sx = ((e.clientX - rect.left) / rect.width) * 100;
+      const sy = ((e.clientY - rect.top) / rect.height) * 100;
+      spotCard.style.setProperty("--spot-x", sx.toFixed(1) + "%");
+      spotCard.style.setProperty("--spot-y", sy.toFixed(1) + "%");
+    }
   });
 }
 
 function initHeroSpotlight() {
   const hero = document.getElementById("heroBanner");
+  const heroMedia = document.getElementById("heroMedia");
   if (!hero) return;
+  const MAX_PARALLAX = 10; // px
 
   hero.addEventListener("mousemove", (e) => {
     const rect = hero.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    hero.style.setProperty("--spot-x", x + "%");
-    hero.style.setProperty("--spot-y", y + "%");
+    const nx = (e.clientX - rect.left) / rect.width; // 0..1
+    const ny = (e.clientY - rect.top) / rect.height;
+    hero.style.setProperty("--spot-x", (nx * 100).toFixed(1) + "%");
+    hero.style.setProperty("--spot-y", (ny * 100).toFixed(1) + "%");
+
+    if (heroMedia) {
+      const px = (nx - 0.5) * MAX_PARALLAX;
+      const py = (ny - 0.5) * MAX_PARALLAX;
+      heroMedia.style.setProperty("--hero-px", (-px).toFixed(1) + "px");
+      heroMedia.style.setProperty("--hero-py", (-py).toFixed(1) + "px");
+    }
+  });
+
+  hero.addEventListener("mouseleave", () => {
+    if (heroMedia) {
+      heroMedia.style.setProperty("--hero-px", "0px");
+      heroMedia.style.setProperty("--hero-py", "0px");
+    }
+  });
+}
+
+/** Positions the sidebar's sliding active-nav pill under whichever
+ *  .nav-item currently has .active, by reading its offsetTop/offsetHeight
+ *  relative to the (position:relative) .sidebar-nav container. Re-run on
+ *  every nav click and on resize (label wrapping can change item heights). */
+function positionNavPill() {
+  const pill = document.getElementById("navActivePill");
+  const active = document.querySelector(".nav-item.active");
+  if (!pill || !active) return;
+  pill.style.transform = `translateY(${active.offsetTop}px)`;
+  pill.style.height = active.offsetHeight + "px";
+  pill.style.opacity = "1";
+}
+
+/** Lightweight ease-out count-up: writes 0 -> endValue into el's text over
+ *  `duration`ms, keeping any suffix (e.g. " pts"). Purely decorative — the
+ *  final DOM text always settles on the real value, so nothing downstream
+ *  that reads it afterward is affected. */
+function animateCountUp(el, endValue, suffix = "", duration = 900) {
+  if (!el || !isFinite(endValue)) return;
+  const start = performance.now();
+  const tick = (now) => {
+    const p = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(endValue * eased) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/** Ripple feedback on every .btn click, delegated on document so it keeps
+ *  working after any re-render. Purely visual: doesn't call preventDefault/
+ *  stopPropagation, so it never interferes with the button's real handler. */
+function initButtonRipple() {
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn");
+    if (!btn || btn.disabled) return;
+
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 1.4;
+    const ripple = document.createElement("span");
+    ripple.className = "btn-ripple";
+    ripple.style.width = ripple.style.height = size + "px";
+    ripple.style.left = (e.clientX - rect.left - size / 2) + "px";
+    ripple.style.top = (e.clientY - rect.top - size / 2) + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener("animationend", () => ripple.remove());
   });
 }
 
@@ -748,6 +860,23 @@ function initAdminCRUD() {
       handleNavIconEditClick(navIconEditBtn);
       return;
     }
+
+    const iconPickerTrigger = e.target.closest(".icon-picker-trigger");
+    if (iconPickerTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      openIconPicker(iconPickerTrigger.dataset.sheet, iconPickerTrigger.dataset.row, iconPickerTrigger.dataset.current);
+      return;
+    }
+
+    // The E-Library download button is a real <a href> — clicking its label
+    // to edit the text must NOT also navigate away. Only suppressed while
+    // the label is actually editable (admin mode); regular visitors clicking
+    // "Muat Turun" still open the link normally.
+    const downloadLabel = e.target.closest(".elib-download-label");
+    if (downloadLabel && downloadLabel.getAttribute("contenteditable") === "true") {
+      e.preventDefault();
+    }
   });
 }
 
@@ -766,6 +895,15 @@ function openFormModal({ title, fields, onSubmit }) {
         inputHTML = `<textarea id="${id}" rows="3" placeholder="${f.placeholder || ""}">${f.value || ""}</textarea>`;
       } else if (f.type === "select") {
         inputHTML = `<select id="${id}">${f.options.map((o) => `<option value="${o}">${o}</option>`).join("")}</select>`;
+      } else if (f.datalist && f.datalist.length) {
+        // Free-text input with autocomplete suggestions (e.g. existing
+        // E-Library categories) — picking a suggestion re-uses that exact
+        // category, but typing anything else still works, creating a
+        // brand-new one.
+        const listId = `${id}_list`;
+        inputHTML =
+          `<input id="${id}" type="text" list="${listId}" placeholder="${f.placeholder || ""}" value="${f.value || ""}">` +
+          `<datalist id="${listId}">${f.datalist.map((o) => `<option value="${o}"></option>`).join("")}</datalist>`;
       } else {
         inputHTML = `<input id="${id}" type="${f.type || "text"}" placeholder="${f.placeholder || ""}" value="${f.value || ""}">`;
       }
@@ -832,6 +970,7 @@ function initNavigation() {
 
       navItems.forEach((n) => n.classList.remove("active"));
       item.classList.add("active");
+      positionNavPill();
 
       pages.forEach((p) => p.classList.remove("active"));
       document.getElementById(`page-${target}`).classList.add("active");
@@ -840,6 +979,9 @@ function initNavigation() {
       document.getElementById("mainContent").scrollTo({ top: 0, behavior: "smooth" });
     });
   });
+
+  positionNavPill();
+  window.addEventListener("resize", positionNavPill);
 }
 
 function initMobileSidebar() {
@@ -1334,7 +1476,7 @@ function resetDialogPosition(dialogEl) {
 }
 
 function initDraggableModals() {
-  ["adminModalBox", "bookModalContent", "formModalBox", "cssModalBox"].forEach((id) => {
+  ["adminModalBox", "bookModalContent", "formModalBox", "cssModalBox", "iconPickerBox"].forEach((id) => {
     makeDialogDraggable(document.getElementById(id));
   });
 }
@@ -1683,22 +1825,150 @@ async function reserveBook(bookId, btn) {
 // ==========================================================================
 
 let elibraryData = [];
+let currentElibFilter = "all";
 
 async function renderElibrary() {
   elibraryData = await fetchSheet("ELibrary", MOCK.elibrary);
   elibraryData = applySavedOrder(elibraryData, "elibrary");
-  drawElibrary("all");
+  // If the category currently being viewed no longer exists (its last item
+  // was deleted, or it just got renamed away), fall back to "Semua" instead
+  // of silently showing an empty grid with no chip highlighted.
+  const stillExists = elibraryData.some((i) => i.type === currentElibFilter);
+  if (currentElibFilter !== "all" && !stillExists) currentElibFilter = "all";
 
-  document.querySelectorAll(".filter-bar .chip").forEach((chip) => {
+  renderElibFilters();
+  drawElibrary(currentElibFilter);
+}
+
+/**
+ * Builds the category filter chips straight from whatever "type" values
+ * actually exist in the data — there's no fixed list. Adding an item with a
+ * brand-new category auto-creates its tab; deleting the last item of a
+ * category removes it. Admin mode also lets each tab's label be edited
+ * in place (see wireElibCategoryEditing) — editing one renames the
+ * category on every item that shares it, so they always stay "connected".
+ */
+function renderElibFilters() {
+  const bar = document.getElementById("elibFilterBar");
+  if (!bar) return;
+
+  const types = [...new Set(elibraryData.map((i) => i.type).filter(Boolean))];
+
+  bar.innerHTML =
+    `<button type="button" class="chip${currentElibFilter === "all" ? " active" : ""}" data-filter="all">Semua</button>` +
+    types
+      .map(
+        (t) => `
+    <button type="button" class="chip${currentElibFilter === t ? " active" : ""}" data-filter="${t}">
+      <span class="chip-label" contenteditable="false" data-editable="elib-cat-${slugifyOrderKey(t)}">${t}</span>
+    </button>`
+      )
+      .join("");
+
+  bar.querySelectorAll(".chip").forEach((chip) => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll(".filter-bar .chip").forEach((c) => c.classList.remove("active"));
+      bar.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
       chip.classList.add("active");
-      drawElibrary(chip.dataset.filter);
+      currentElibFilter = chip.dataset.filter;
+      drawElibrary(currentElibFilter);
+    });
+  });
+
+  wireElibCategoryEditing(bar);
+}
+
+/** Wires inline editing for each category chip's label. Unlike the generic
+ *  wireInlineEditing() (which targets one sheet/row/col cell), renaming a
+ *  category has to update EVERY E-Library item that currently shares it —
+ *  so this has its own dedicated blur handler instead. */
+function wireElibCategoryEditing(container) {
+  container.querySelectorAll(".chip-label[data-editable]").forEach((el) => {
+    // Freshly rendered each time (innerHTML replaced the whole bar), so
+    // reflect the current admin-mode state directly instead of waiting for
+    // the next global setAdminMode() toggle to reach it.
+    el.setAttribute("contenteditable", document.body.classList.contains("admin-mode") ? "true" : "false");
+
+    let originalValue = el.textContent.trim();
+    el.addEventListener("focus", () => { originalValue = el.textContent.trim(); });
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); el.blur(); }
+    });
+    el.addEventListener("blur", async () => {
+      const newValue = el.textContent.trim();
+      if (!newValue || newValue === originalValue) {
+        el.textContent = originalValue; // reject empty rename, restore label
+        return;
+      }
+      await renameElibCategory(originalValue, newValue);
     });
   });
 }
 
-const ELIB_ICONS = { "Kertas Peperiksaan": "file", "Nota": "fileText", "Pautan": "link" };
+/** Renames a category on every E-Library item that currently has it, then
+ *  re-renders the filter bar + grid so the tabs and items stay in sync. */
+async function renameElibCategory(oldName, newName) {
+  const affected = elibraryData.filter((item) => item.type === oldName);
+  if (affected.length === 0) return;
+
+  if (currentElibFilter === oldName) currentElibFilter = newName;
+
+  if (isDemo()) {
+    affected.forEach((item) => { item.type = newName; });
+    showToast(`Kategori "${oldName}" ditukar kepada "${newName}" (mod demo).`);
+    renderElibFilters();
+    drawElibrary(currentElibFilter);
+    return;
+  }
+
+  const results = await Promise.all(
+    affected.map((item) => postToSheet({ action: "update", sheet: "ELibrary", row: item.id, column: "type", value: newName }))
+  );
+
+  if (results.every((r) => r.status === "ok")) {
+    affected.forEach((item) => { item.type = newName; });
+    showToast(`Kategori "${oldName}" berjaya ditukar kepada "${newName}".`);
+  } else {
+    showToast("Sebahagian item gagal dikemas kini kategori.", "error");
+  }
+  renderElibFilters();
+  drawElibrary(currentElibFilter);
+}
+
+const ELIB_ICONS = { "Kertas Peperiksaan": "file", "Nota Digital": "fileText", "Pautan Pembelajaran": "link" };
+
+// 20 curated icon choices offered by the icon picker (see openIconPicker) —
+// same minimal line-icon style as the rest of the dashboard, just a set
+// broad enough to cover most resource types a teacher would upload.
+const ELIB_ICON_PRESETS = [
+  { key: "file", label: "Dokumen" },
+  { key: "fileText", label: "Nota" },
+  { key: "link", label: "Pautan" },
+  { key: "book", label: "Buku" },
+  { key: "bookOpen", label: "Bacaan" },
+  { key: "download", label: "Muat Turun" },
+  { key: "clipboard", label: "Senarai Semak" },
+  { key: "video", label: "Video" },
+  { key: "image", label: "Gambar" },
+  { key: "globe", label: "Portal Web" },
+  { key: "graduationCap", label: "Akademik" },
+  { key: "calculator", label: "Matematik" },
+  { key: "flask", label: "Sains" },
+  { key: "code", label: "ICT / Kod" },
+  { key: "headphones", label: "Audio" },
+  { key: "chart", label: "Pembentangan" },
+  { key: "archive", label: "Arkib / Zip" },
+  { key: "folder", label: "Koleksi" },
+  { key: "star", label: "Pilihan" },
+  { key: "bookmark", label: "Rujukan" },
+];
+
+function elibItemIcon(item) {
+  return item.icon || ELIB_ICONS[item.type] || "file";
+}
+
+function iconPickerBtnHTML(sheet, row, currentIconKey) {
+  return `<button type="button" class="icon-picker-trigger" data-sheet="${sheet}" data-row="${row}" data-current="${currentIconKey}" title="Tukar ikon">${icon("edit")}</button>`;
+}
 
 function drawElibrary(filter) {
   const grid = document.getElementById("elibraryGrid");
@@ -1710,10 +1980,13 @@ function drawElibrary(filter) {
         (item) => `
     <div class="glass-card elib-card" data-elib-id="${item.id}">
       ${deleteBtnHTML("ELibrary", item.id)}
-      <div class="elib-icon">${icon(ELIB_ICONS[item.type] || "file")}</div>
+      <div class="elib-icon">
+        ${icon(elibItemIcon(item))}
+        ${iconPickerBtnHTML("ELibrary", item.id, elibItemIcon(item))}
+      </div>
       <h3>${item.title}</h3>
       <div class="elib-meta">${item.type} · ${item.meta}</div>
-      <a class="btn btn-ghost" href="${item.link}" target="_blank" rel="noopener">${icon("download")} Muat Turun</a>
+      <a class="btn btn-ghost" href="${item.link}" target="_blank" rel="noopener">${icon("download")} <span class="elib-download-label" contenteditable="false" data-editable="elib-btnlabel-${item.id}" data-sheet="ELibrary" data-row="${item.id}" data-col="buttonLabel">${item.buttonLabel || "Muat Turun"}</span></a>
     </div>`
       )
       .join("") + addTileHTML("ELibrary", "Tambah Bahan");
@@ -1722,6 +1995,57 @@ function drawElibrary(filter) {
   // filtered subset would silently push every hidden item to the end of the
   // saved order the next time it's read back.
   if (filter === "all") makeSortable(grid, "elibrary", ".elib-card", "elibId", "grid");
+
+  grid.querySelectorAll(".elib-download-label").forEach((el) => {
+    el.setAttribute("contenteditable", document.body.classList.contains("admin-mode") ? "true" : "false");
+  });
+  wireInlineEditing(grid);
+}
+
+/** Opens the visual icon picker for one E-Library item (triggered by the
+ *  small badge on its icon square). Picking a preset saves it to the
+ *  sheet's "icon" column (auto-created on first use — see Code.gs
+ *  handleUpdate) and re-renders so the new icon shows immediately. */
+function openIconPicker(sheet, row, currentIconKey) {
+  const modal = document.getElementById("iconPickerModal");
+  const grid = document.getElementById("iconPickerGrid");
+
+  grid.innerHTML = ELIB_ICON_PRESETS.map(
+    (preset) => `
+    <button type="button" class="icon-picker-option${preset.key === currentIconKey ? " active" : ""}" data-icon-key="${preset.key}" title="${preset.label}">
+      ${icon(preset.key)}
+      <span>${preset.label}</span>
+    </button>`
+  ).join("");
+
+  resetDialogPosition(document.getElementById("iconPickerBox"));
+  modal.classList.add("show");
+
+  grid.querySelectorAll(".icon-picker-option").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      modal.classList.remove("show");
+      const iconKey = btn.dataset.iconKey;
+
+      if (isDemo()) {
+        const item = MOCK.elibrary.find((x) => String(x.id) === String(row));
+        if (item) item.icon = iconKey;
+        showToast("Ikon dikemas kini (mod demo).");
+        renderElibrary();
+        return;
+      }
+
+      const result = await postToSheet({ action: "update", sheet, row, column: "icon", value: iconKey });
+      if (result.status === "ok") {
+        showToast("Ikon berjaya dikemas kini.");
+        renderElibrary();
+      } else {
+        showToast("Gagal mengemas kini ikon.", "error");
+      }
+    });
+  });
+
+  document.getElementById("iconPickerCancel").onclick = () => modal.classList.remove("show");
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); }, { once: true });
 }
 
 // ==========================================================================
@@ -1746,10 +2070,13 @@ async function renderLeaderboard() {
         </div>
         <div class="podium-name">${person.name}</div>
         <div class="podium-class">${person.kelas}</div>
-        <div class="podium-score">${person.score} pts</div>
+        <div class="podium-score" data-count="${person.score}">0 pts</div>
       </div>`;
   };
   podium.innerHTML = podiumHtml(1, first) + podiumHtml(2, second) + podiumHtml(3, third);
+  podium.querySelectorAll(".podium-score[data-count]").forEach((el) => {
+    animateCountUp(el, Number(el.dataset.count), " pts");
+  });
 
   const list = document.getElementById("leaderboardList");
   const maxScore = sorted[0] ? sorted[0].score : 1;
@@ -1768,12 +2095,25 @@ async function renderLeaderboard() {
         <div class="lb-name">${p.name}</div>
         <div class="lb-class">${p.kelas}</div>
       </div>
-      <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(p.score / maxScore) * 100}%"></div></div>
-      <div class="lb-score">${p.score}</div>
+      <div class="lb-bar-wrap"><div class="lb-bar" style="width:0%" data-target="${(p.score / maxScore) * 100}"></div></div>
+      <div class="lb-score" data-count="${p.score}">0</div>
       ${deleteBtnHTML("Leaderboard", p.id)}
     </div>`
       )
       .join("") + `<div class="lb-add-row">${addTileHTML("Leaderboard", "Tambah Pelajar", { inline: true })}</div>`;
+
+  list.querySelectorAll(".lb-score[data-count]").forEach((el) => {
+    animateCountUp(el, Number(el.dataset.count));
+  });
+  // set width AFTER the 0% has actually painted, so the browser has
+  // something to transition *from* instead of jumping straight to target
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      list.querySelectorAll(".lb-bar[data-target]").forEach((bar) => {
+        bar.style.width = bar.dataset.target + "%";
+      });
+    });
+  });
 }
 
 function initials(name) {
@@ -1875,7 +2215,7 @@ async function renderWakaf() {
       </div>
       <h3>${w.name}</h3>
       <div class="wish-meta"><span class="wish-qty">${w.qty}</span></div>
-      <div class="wish-progress"><div class="wish-progress-bar" style="width:${w.progress}%"></div></div>
+      <div class="wish-progress"><div class="wish-progress-bar" style="width:0%" data-target="${w.progress}"></div></div>
       <button class="btn ${w.donated ? "btn-ghost" : "btn-primary"} wish-donate-btn" data-wish-id="${w.id}" ${w.donated ? "disabled" : ""}>
         ${w.donated ? `${icon("checkCircle")} Terima Kasih!` : `${icon("gift")} Sumbang Item Ini`}
       </button>
@@ -1887,6 +2227,14 @@ async function renderWakaf() {
     btn.addEventListener("click", () => donateItem(btn.dataset.wishId, btn));
   });
   makeSortable(grid, "wishlist", ".wish-card", "wishId", "grid");
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      grid.querySelectorAll(".wish-progress-bar[data-target]").forEach((bar) => {
+        bar.style.width = bar.dataset.target + "%";
+      });
+    });
+  });
 }
 
 async function donateItem(wishId, btn) {
@@ -1923,6 +2271,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initTiltEffect();
   initHeroSpotlight();
   initThemeModeToggle();
+  initButtonRipple();
 
   if (!USING_LIVE_BACKEND()) {
     console.info(

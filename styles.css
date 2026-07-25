@@ -597,6 +597,11 @@ a { text-decoration: none; color: inherit; }
 
 .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
 
+/* category chip label (admin-editable — see wireElibCategoryEditing in
+   script.js). The generic [data-editable] dashed-outline treatment uses a
+   4px offset that overflows a small pill button, so tighten it here. */
+.admin-mode .chip-label { outline-offset: 2px; cursor: text; }
+
 /* ==========================================================================
    HERO / BULLETIN
    ========================================================================== */
@@ -954,6 +959,7 @@ a { text-decoration: none; color: inherit; }
 
 .elib-card { display: flex; flex-direction: column; }
 .elib-icon {
+  position: relative;
   width: 46px; height: 46px;
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
@@ -966,6 +972,70 @@ a { text-decoration: none; color: inherit; }
 .elib-card h3 { font-size: 15px; margin-bottom: 6px; }
 .elib-card .elib-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
 .elib-card .btn { width: 100%; justify-content: center; margin-top: auto; }
+
+/* ---------- icon picker trigger (small badge on the icon square) ---------- */
+.icon-picker-trigger {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(245, 197, 24, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(245, 197, 24, 0.25);
+  color: #141414;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: all 0.2s var(--ease);
+}
+.admin-mode .icon-picker-trigger { display: flex; }
+.icon-picker-trigger:hover { background: #ffd83d; transform: scale(1.15); }
+.icon-picker-trigger .icon { width: 13px; height: 13px; }
+
+/* the download button's label becomes an editable span inside the <a> in
+   admin mode — the anchor's real click-to-open-link behavior is suppressed
+   only for clicks landing on this span (see script.js), so admins can edit
+   the text without the browser navigating away. */
+.elib-download-label { border-radius: 4px; }
+.admin-mode .elib-download-label {
+  outline: 1px dashed rgba(245,197,24,0.5);
+  outline-offset: 2px;
+  cursor: text;
+}
+.admin-mode .elib-download-label:hover { background: rgba(245,197,24,0.1); }
+.admin-mode .elib-download-label:focus { outline: 2px solid var(--gold); background: rgba(245,197,24,0.15); }
+
+/* ---------- icon picker modal ---------- */
+#iconPickerModal .modal-box { max-width: 480px; }
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.icon-picker-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.2s var(--ease);
+}
+.icon-picker-option .icon { width: 22px; height: 22px; }
+.icon-picker-option:hover { border-color: var(--gold); color: var(--text-primary); background: rgba(245,197,24,0.08); }
+.icon-picker-option.active { border-color: var(--red); background: rgba(var(--red-rgb),0.12); color: #fff; box-shadow: var(--glow-sm); }
 
 /* ==========================================================================
    LEADERBOARD
@@ -1936,34 +2006,7 @@ body {
     radial-gradient(ellipse at top, #ffffff 0%, #eef0f3 60%);
 }
 
-/* ---------- sidebar brand mark ---------- */
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.brand-mark {
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, var(--red-light), var(--red-dark));
-  box-shadow: 0 6px 18px rgba(var(--red-rgb),0.4), 0 0 0 1px rgba(255,255,255,0.12) inset;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.brand-mark::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 55%);
-}
-.brand-mark .icon { width: 21px; height: 21px; position: relative; z-index: 1; }
-.brand-text { min-width: 0; }
+/* ---------- sidebar brand text ---------- */
 .brand-line-1 {
   letter-spacing: var(--tracking-tight);
   background: linear-gradient(135deg, #ffffff 20%, #c8c8c8 100%);
@@ -2147,4 +2190,156 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, var(--red-light), var(--gold));
+}
+
+/* ==========================================================================
+   WOW MOTION PASS — deeper glassmorphism (cursor-reactive spotlight glass,
+   richer blur/saturation), a sliding nav indicator, parallax hero, growing
+   progress bars, count-up numbers and ripple buttons. All additive: no
+   existing selector's base behavior is removed, only layered on top of it,
+   so admin CRUD / sorting / theming keep working exactly as before.
+   ========================================================================== */
+
+/* ---------- richer glass tokens (single source, cascades everywhere) ---------- */
+:root {
+  --glass-blur: blur(26px) saturate(200%) brightness(1.06);
+  --glass-blur-strong: blur(38px) saturate(220%) brightness(1.08);
+  --glass-fill: linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.02) 55%, rgba(var(--red-rgb),0.035));
+  --glass-fill-strong: linear-gradient(145deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04) 55%, rgba(245,197,24,0.05));
+  --glass-shadow-hover: 0 24px 56px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+:root[data-theme="light"] {
+  --glass-fill: linear-gradient(145deg, rgba(0,0,0,0.055), rgba(0,0,0,0.012) 55%, rgba(var(--red-rgb),0.025));
+  --glass-fill-strong: linear-gradient(145deg, rgba(0,0,0,0.1), rgba(0,0,0,0.03) 55%, rgba(245,197,24,0.04));
+}
+
+/* ---------- cursor-reactive spotlight glass — a soft light layered under
+   the existing tint, positioned by --spot-x/--spot-y (JS: initTiltEffect).
+   Falls back to a centered ambient glow when JS hasn't set the vars yet. ---------- */
+.glass-card,
+.elib-card,
+.event-card,
+.wish-card,
+.org-card,
+.podium-item {
+  background:
+    radial-gradient(circle 240px at var(--spot-x, 50%) var(--spot-y, 0%), rgba(255,255,255,0.07), transparent 68%),
+    var(--glass-fill);
+  transition: background 0.5s var(--ease), transform 0.2s var(--ease), border-color 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+.glass-card:hover,
+.elib-card:hover,
+.event-card:hover,
+.wish-card:hover,
+.org-card:hover,
+.podium-item:hover {
+  background:
+    radial-gradient(circle 260px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.18), transparent 68%),
+    var(--glass-fill-strong);
+}
+.book-card {
+  background:
+    radial-gradient(circle 200px at var(--spot-x, 50%) var(--spot-y, 0%), rgba(255,255,255,0.08), transparent 70%),
+    var(--bg-panel);
+  transition: background 0.5s var(--ease), transform 0.2s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.book-card:hover {
+  background:
+    radial-gradient(circle 220px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.16), transparent 70%),
+    var(--bg-panel);
+}
+:root[data-theme="light"] .book-card,
+:root[data-theme="light"] .book-card:hover {
+  background-color: var(--bg-panel-2);
+}
+.lb-row {
+  background:
+    radial-gradient(circle 220px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.06), transparent 70%),
+    var(--glass-fill);
+  transition: background 0.4s var(--ease), transform 0.25s var(--ease), border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.lb-row:hover {
+  background:
+    radial-gradient(circle 240px at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255,255,255,0.13), transparent 70%),
+    var(--glass-fill-strong);
+}
+
+/* ---------- sidebar: sliding active-nav pill, positioned via JS
+   (positionNavPill) — height/translateY set inline, everything else here ---------- */
+.sidebar-nav { position: relative; }
+.nav-item { z-index: 1; }
+.nav-active-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, rgba(var(--red-rgb),0.22), rgba(var(--red-rgb),0.04) 75%, transparent);
+  box-shadow: 0 6px 20px rgba(var(--red-rgb),0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s var(--ease), opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+}
+
+/* ---------- hero: subtle cursor-parallax on the media layer, driven by
+   --hero-px/--hero-py (JS: initHeroSpotlight). Slightly oversized via
+   scale() so the parallax offset never reveals an edge. ---------- */
+.hero-media {
+  transform: translate3d(var(--hero-px, 0px), var(--hero-py, 0px), 0) scale(1.06);
+  transition: transform 0.25s var(--ease);
+  will-change: transform;
+}
+
+/* ---------- page switches: cinematic blur-in instead of a plain fade ---------- */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.page { animation: page-enter 0.55s var(--ease); }
+
+/* ---------- progress bars: grow into place instead of snapping to width
+   (JS sets width:0 initially, then flips to the target on next frame) ---------- */
+.lb-bar,
+.wish-progress-bar {
+  transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- ripple feedback on every .btn click (JS: initButtonRipple) ---------- */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+  transform: scale(0);
+  opacity: 0.9;
+  animation: btn-ripple-anim 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes btn-ripple-anim {
+  to { transform: scale(1); opacity: 0; }
+}
+
+/* ---------- ambient floating color bloom behind the whole app (paints
+   behind normal-flow content via negative z-index; gently drifts using the
+   aurora-float keyframe already defined above for the hero blobs) ---------- */
+body::after {
+  content: "";
+  position: fixed;
+  top: 30%;
+  right: -260px;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,197,24,0.4), transparent 70%);
+  filter: blur(150px);
+  opacity: 0.16;
+  z-index: -1;
+  animation: aurora-float 17s ease-in-out infinite reverse;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .nav-active-pill { display: none; }
 }
