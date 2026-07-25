@@ -723,6 +723,61 @@ function setAdminMode(on) {
   if (!on) showToast("Mod Admin dimatikan.", "success");
 }
 
+// ==========================================================================
+// THEME CUSTOMIZER — lets Admin Mode change the dashboard's accent colour
+// live (updates CSS variables), persisted per-browser via localStorage.
+// ==========================================================================
+
+const DEFAULT_ACCENT = "#e50914";
+const ACCENT_STORAGE_KEY = "pss-accent-color";
+
+function initThemeCustomizer() {
+  const input = document.getElementById("accentColorInput");
+  const resetBtn = document.getElementById("accentColorReset");
+
+  const saved = localStorage.getItem(ACCENT_STORAGE_KEY);
+  if (saved) applyAccentColor(saved);
+
+  input.addEventListener("input", (e) => applyAccentColor(e.target.value));
+  resetBtn.addEventListener("click", () => {
+    applyAccentColor(DEFAULT_ACCENT);
+    localStorage.removeItem(ACCENT_STORAGE_KEY);
+    showToast("Warna tema disetkan semula.");
+  });
+}
+
+function applyAccentColor(hex) {
+  const root = document.documentElement.style;
+  const num = parseInt(hex.replace("#", ""), 16);
+  const r = num >> 16, g = (num >> 8) & 0x00ff, b = num & 0x0000ff;
+
+  root.setProperty("--red", hex);
+  root.setProperty("--red-dark", shadeColor(hex, -25));
+  root.setProperty("--red-light", shadeColor(hex, 20));
+  root.setProperty("--red-rgb", `${r}, ${g}, ${b}`);
+  root.setProperty("--red-glow", hexToRgba(hex, 0.45));
+  document.getElementById("accentColorInput").value = hex;
+  localStorage.setItem(ACCENT_STORAGE_KEY, hex);
+}
+
+/** Darkens (negative percent) or lightens (positive) a hex colour. */
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const amt = Math.round(2.55 * percent);
+  const r = Math.max(0, Math.min(255, (num >> 16) + amt));
+  const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amt));
+  const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amt));
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`;
+}
+
+function hexToRgba(hex, alpha) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const r = num >> 16;
+  const g = (num >> 8) & 0x00ff;
+  const b = num & 0x0000ff;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 /**
  * Attach a "blur" listener to every editable element so edits are saved
  * (POSTed to the Google Sheet) the moment the admin clicks away.
@@ -1149,6 +1204,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobileSidebar();
   initAdminMode();
   initAdminCRUD();
+  initThemeCustomizer();
 
   renderHome();
   renderPustaka();
