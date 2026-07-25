@@ -1099,6 +1099,40 @@ function setAdminMode(on) {
 }
 
 // ==========================================================================
+// LOADING OVERLAY — bilingual cycling tagline, Apple-startup style.
+// ==========================================================================
+
+const LOADING_TAGLINES = ["Perpustakaan Ibnu Sina", "Ibnu Sina Library", "We Learn, We Care, We Protect"];
+
+/** Cross-fades the loading overlay's main line through LOADING_TAGLINES
+ *  every ~1.9s for as long as the overlay is visible, then stops itself the
+ *  moment appLoadingOverlay gets its "hidden" class (no point animating
+ *  text nobody can see, and it would otherwise run forever in the background). */
+function initLoadingTaglineCycle() {
+  const el = document.getElementById("appLoadingMarkCycle");
+  const overlay = document.getElementById("appLoadingOverlay");
+  if (!el || !overlay) return;
+
+  let i = 0;
+  const timer = setInterval(() => {
+    el.classList.add("fade-out");
+    setTimeout(() => {
+      i = (i + 1) % LOADING_TAGLINES.length;
+      el.textContent = LOADING_TAGLINES[i];
+      el.classList.remove("fade-out");
+    }, 350);
+  }, 1900);
+
+  const stopWhenHidden = new MutationObserver(() => {
+    if (overlay.classList.contains("hidden")) {
+      clearInterval(timer);
+      stopWhenHidden.disconnect();
+    }
+  });
+  stopWhenHidden.observe(overlay, { attributes: true, attributeFilter: ["class"] });
+}
+
+// ==========================================================================
 // THEME CUSTOMIZER — lets Admin Mode change the dashboard's accent colour
 // live (updates CSS variables), persisted per-browser via localStorage.
 // ==========================================================================
@@ -2369,6 +2403,7 @@ function initGalleryLightbox() {
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  initLoadingTaglineCycle();
   initNavigation();
   initMobileSidebar();
   initAdminMode();
