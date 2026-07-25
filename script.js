@@ -1400,12 +1400,16 @@ async function renderHeroSlides() {
 }
 
 async function renderHome() {
-  let announcements = await fetchSheet("Announcements", MOCK.announcements);
-  announcements = applySavedOrder(announcements, "announcements");
+  const announcements = await fetchSheet("Announcements", MOCK.announcements);
   const marqueeItems = await fetchSheet("Activities", MOCK.marquee);
 
-  // Hero text uses the first announcement (the background image is now a
-  // separate multi-slide slideshow — see renderHeroSlides())
+  // Hero text always uses the first announcement AS FETCHED (stable sheet
+  // row order) — deliberately NOT reordered by applySavedOrder(). Otherwise
+  // dragging the "Pengumuman Lain" grid into a new order could silently
+  // promote a *different* announcement to become the featured hero, which
+  // looks exactly like an edit "reverting" even though nothing was lost —
+  // the real content just moved to the grid. (The background image is a
+  // separate multi-slide slideshow — see renderHeroSlides().)
   const hero = announcements[0];
   const heroDeleteWrap = document.getElementById("heroDeleteWrap");
   if (hero) {
@@ -1434,11 +1438,12 @@ async function renderHome() {
       .join("");
   track.innerHTML = buildItems(marqueeItems) + buildItems(marqueeItems);
 
-  // Remaining announcements grid (skip the hero one)
+  // Remaining announcements grid (skip the hero one) — reordering here only
+  // ever affects this grid's own display order, never which one is hero.
   const grid = document.getElementById("announcementGrid");
+  const gridItems = applySavedOrder(announcements.slice(1), "announcements");
   grid.innerHTML =
-    announcements
-      .slice(1)
+    gridItems
       .map(
         (a) => `
     <div class="glass-card announcement-card" data-announcement-id="${a.id}">
