@@ -36,6 +36,9 @@ const ICONS = {
   x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 5 14 14M19 5 5 19"/></svg>`,
   crown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4 3 5-6 5 6 4-3-1.5 10h-15Z"/><path d="M5 21h14"/></svg>`,
   gift: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="4" rx="1"/><rect x="5" y="13" width="14" height="8" rx="1"/><path d="M12 9v12"/><path d="M12 9C9 9 8 7.3 8 6a2 2 0 0 1 4 0 2 2 0 0 1 4 0c0 1.3-1 3-4 3Z"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M6 7l1 13.5A1.5 1.5 0 0 0 8.5 22h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/><path d="M10 11v6M14 11v6"/></svg>`,
+  camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/><circle cx="12" cy="13" r="3.5"/></svg>`,
 };
 
 /** Returns an icon's raw SVG markup with a shared "icon" class applied. */
@@ -80,12 +83,12 @@ const MOCK = {
     },
   ],
   marquee: [
-    { img: "https://picsum.photos/seed/act1/400/300", caption: "Bengkel Origami PSS" },
-    { img: "https://picsum.photos/seed/act2/400/300", caption: "Pertandingan Poster Membaca" },
-    { img: "https://picsum.photos/seed/act3/400/300", caption: "Sudut Bacaan Baharu" },
-    { img: "https://picsum.photos/seed/act4/400/300", caption: "Lawatan Perpustakaan Negeri" },
-    { img: "https://picsum.photos/seed/act5/400/300", caption: "Klinik Rujukan Ilmiah" },
-    { img: "https://picsum.photos/seed/act6/400/300", caption: "Hari Buku Sedunia" },
+    { id: "act1", img: "https://picsum.photos/seed/act1/400/300", caption: "Bengkel Origami PSS" },
+    { id: "act2", img: "https://picsum.photos/seed/act2/400/300", caption: "Pertandingan Poster Membaca" },
+    { id: "act3", img: "https://picsum.photos/seed/act3/400/300", caption: "Sudut Bacaan Baharu" },
+    { id: "act4", img: "https://picsum.photos/seed/act4/400/300", caption: "Lawatan Perpustakaan Negeri" },
+    { id: "act5", img: "https://picsum.photos/seed/act5/400/300", caption: "Klinik Rujukan Ilmiah" },
+    { id: "act6", img: "https://picsum.photos/seed/act6/400/300", caption: "Hari Buku Sedunia" },
   ],
   books: [
     {
@@ -130,16 +133,16 @@ const MOCK = {
     { id: "e8", title: "Nota Fizik — Elektrik & Magnet", type: "Nota", meta: "PDF · 1.4 MB", link: "#" },
   ],
   leaderboard: [
-    { name: "Ahmad Danial", kelas: "5 Cemerlang", score: 128 },
-    { name: "Nur Aisyah", kelas: "4 Bestari", score: 121 },
-    { name: "Muhammad Haziq", kelas: "5 Amanah", score: 115 },
-    { name: "Siti Sarah", kelas: "3 Gemilang", score: 98 },
-    { name: "Lim Wei Jian", kelas: "4 Cemerlang", score: 92 },
-    { name: "Nurul Iman", kelas: "5 Bestari", score: 87 },
-    { name: "Kavitha Raj", kelas: "3 Amanah", score: 81 },
-    { name: "Farid Iskandar", kelas: "2 Gemilang", score: 76 },
-    { name: "Chong Mei Ling", kelas: "4 Amanah", score: 70 },
-    { name: "Zulaikha Batrisyia", kelas: "1 Bestari", score: 64 },
+    { id: "lb1", name: "Ahmad Danial", kelas: "5 Cemerlang", score: 128 },
+    { id: "lb2", name: "Nur Aisyah", kelas: "4 Bestari", score: 121 },
+    { id: "lb3", name: "Muhammad Haziq", kelas: "5 Amanah", score: 115 },
+    { id: "lb4", name: "Siti Sarah", kelas: "3 Gemilang", score: 98 },
+    { id: "lb5", name: "Lim Wei Jian", kelas: "4 Cemerlang", score: 92 },
+    { id: "lb6", name: "Nurul Iman", kelas: "5 Bestari", score: 87 },
+    { id: "lb7", name: "Kavitha Raj", kelas: "3 Amanah", score: 81 },
+    { id: "lb8", name: "Farid Iskandar", kelas: "2 Gemilang", score: 76 },
+    { id: "lb9", name: "Chong Mei Ling", kelas: "4 Amanah", score: 70 },
+    { id: "lb10", name: "Zulaikha Batrisyia", kelas: "1 Bestari", score: 64 },
   ],
   committee: [
     { tier: 1, name: "Pn. Rohana Ahmad", role: "Guru Penasihat PSS", avatar: "https://i.pravatar.cc/150?img=45", editKey: "committee-1" },
@@ -151,10 +154,10 @@ const MOCK = {
     { tier: 4, name: "10 Ahli Pengawas PSS", role: "Ahli Jawatankuasa", avatar: "https://i.pravatar.cc/150?img=5", editKey: "committee-7" },
   ],
   events: [
-    { id: "ev1", day: "04", month: "OGO", title: "Minggu Membaca 2026", desc: "Aktiviti membaca sepanjang minggu dengan cabaran dan hadiah harian.", image: "https://picsum.photos/seed/event1/500/300" },
-    { id: "ev2", day: "12", month: "OGO", title: "Bengkel Kemahiran Rujukan", desc: "Wajib untuk Tingkatan 1. Sila daftar melalui borang di bawah.", image: "https://picsum.photos/seed/event2/500/300" },
-    { id: "ev3", day: "20", month: "OGO", title: "Hari Sukan Membaca", desc: "Aktiviti luar bilik darjah menggabungkan sukan dan cabaran bacaan.", image: "https://picsum.photos/seed/event3/500/300" },
-    { id: "ev4", day: "02", month: "SEP", title: "Mesyuarat Agung PSS", desc: "Mesyuarat tahunan jawatankuasa dan pelantikan pengawas baharu.", image: "https://picsum.photos/seed/event4/500/300" },
+    { id: "ev1", day: "04", month: "OGO", title: "Minggu Membaca 2026", desc: "Aktiviti membaca sepanjang minggu dengan cabaran dan hadiah harian.", image: "https://picsum.photos/seed/event1/500/300", rulesLink: "", registerLink: "" },
+    { id: "ev2", day: "12", month: "OGO", title: "Bengkel Kemahiran Rujukan", desc: "Wajib untuk Tingkatan 1. Sila daftar melalui borang di bawah.", image: "https://picsum.photos/seed/event2/500/300", rulesLink: "", registerLink: "" },
+    { id: "ev3", day: "20", month: "OGO", title: "Hari Sukan Membaca", desc: "Aktiviti luar bilik darjah menggabungkan sukan dan cabaran bacaan.", image: "https://picsum.photos/seed/event3/500/300", rulesLink: "", registerLink: "" },
+    { id: "ev4", day: "02", month: "SEP", title: "Mesyuarat Agung PSS", desc: "Mesyuarat tahunan jawatankuasa dan pelantikan pengawas baharu.", image: "https://picsum.photos/seed/event4/500/300", rulesLink: "", registerLink: "" },
   ],
   wishlist: [
     { id: "w1", name: "Bean Bag Sudut Bacaan", qty: "3 / 10 disumbang", progress: 30, image: "https://picsum.photos/seed/wish1/400/300", donated: false },
@@ -206,6 +209,409 @@ async function postToSheet(payload) {
     console.error("Gagal menghantar kemas kini ke Google Sheet.", err);
     return { status: "error", error: String(err) };
   }
+}
+
+// ==========================================================================
+// ADMIN CRUD ENGINE — powers "Tambah" (add), "Padam" (delete) and image
+// upload for every section. In demo mode (no backend configured) these
+// mutate the in-memory MOCK data directly so the full flow is testable
+// offline; with a live backend they call Apps Script's addRow / deleteRow /
+// uploadImage actions and re-render from the freshly-fetched sheet data.
+// ==========================================================================
+
+const isDemo = () => !USING_LIVE_BACKEND();
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const CRUD = {
+  Announcements: {
+    render: () => renderHome(),
+    title: "Tambah Pengumuman",
+    fields: () => [
+      { key: "title", label: "Tajuk", type: "text", required: true },
+      { key: "description", label: "Penerangan", type: "textarea" },
+      { key: "date", label: "Tarikh", type: "date" },
+    ],
+    buildRow: (v) => ({
+      id: Date.now(),
+      title: v.title,
+      description: v.description,
+      date: v.date,
+      image: `https://picsum.photos/seed/ann${Date.now()}/1600/700`,
+    }),
+    demoAdd: (row) => MOCK.announcements.push(row),
+    demoDelete: (id) => { MOCK.announcements = MOCK.announcements.filter((a) => String(a.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const a = MOCK.announcements.find((x) => String(x.id) === String(id));
+      if (a) a.image = url;
+    },
+  },
+  Activities: {
+    render: () => renderHome(),
+    title: "Tambah Aktiviti",
+    fields: () => [{ key: "caption", label: "Keterangan Aktiviti", type: "text", required: true }],
+    buildRow: (v) => ({
+      id: "act_" + Date.now(),
+      img: `https://picsum.photos/seed/act${Date.now()}/400/300`,
+      caption: v.caption,
+    }),
+    demoAdd: (row) => MOCK.marquee.push(row),
+    demoDelete: (id) => { MOCK.marquee = MOCK.marquee.filter((a) => String(a.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const a = MOCK.marquee.find((x) => String(x.id) === String(id));
+      if (a) a.img = url;
+    },
+  },
+  Books: {
+    render: () => renderPustaka(),
+    title: "Tambah Buku",
+    fields: (ctx) => [
+      { key: "category", label: "Kategori", type: "text", required: true, value: (ctx && ctx.category) || "" },
+      { key: "title", label: "Tajuk Buku", type: "text", required: true },
+      { key: "synopsis", label: "Sinopsis", type: "textarea" },
+    ],
+    buildRow: (v) => ({
+      id: "book_" + Date.now(),
+      category: v.category,
+      title: v.title,
+      synopsis: v.synopsis,
+      cover: `https://picsum.photos/seed/book${Date.now()}/300/450`,
+      reserved: 0,
+    }),
+    demoAdd: (row) => {
+      const group = MOCK.books.find((g) => g.category === row.category);
+      const item = { id: row.id, title: row.title, synopsis: row.synopsis, cover: row.cover };
+      if (group) group.items.push(item);
+      else MOCK.books.push({ category: row.category, items: [item] });
+    },
+    demoDelete: (id) => {
+      MOCK.books.forEach((g) => { g.items = g.items.filter((b) => String(b.id) !== String(id)); });
+      MOCK.books = MOCK.books.filter((g) => g.items.length > 0);
+    },
+    demoUploadImage: (id, url) => {
+      for (const g of MOCK.books) {
+        const b = g.items.find((x) => String(x.id) === String(id));
+        if (b) { b.cover = url; return; }
+      }
+    },
+  },
+  ELibrary: {
+    render: () => renderElibrary(),
+    title: "Tambah Bahan E-Library",
+    fields: () => [
+      { key: "title", label: "Tajuk", type: "text", required: true },
+      { key: "type", label: "Jenis", type: "select", options: ["Kertas Peperiksaan", "Nota", "Pautan"] },
+      { key: "meta", label: "Maklumat (cth: PDF · 2 MB)", type: "text" },
+      { key: "link", label: "Pautan Muat Turun", type: "text", placeholder: "https://..." },
+    ],
+    buildRow: (v) => ({ id: "elib_" + Date.now(), title: v.title, type: v.type, meta: v.meta, link: v.link || "#" }),
+    demoAdd: (row) => MOCK.elibrary.push(row),
+    demoDelete: (id) => { MOCK.elibrary = MOCK.elibrary.filter((x) => String(x.id) !== String(id)); },
+  },
+  Leaderboard: {
+    render: () => renderLeaderboard(),
+    title: "Tambah Pelajar",
+    fields: () => [
+      { key: "name", label: "Nama Pelajar", type: "text", required: true },
+      { key: "kelas", label: "Kelas", type: "text" },
+      { key: "score", label: "Skor", type: "number" },
+    ],
+    buildRow: (v) => ({ id: "lb_" + Date.now(), name: v.name, kelas: v.kelas, score: Number(v.score) || 0 }),
+    demoAdd: (row) => MOCK.leaderboard.push(row),
+    demoDelete: (id) => { MOCK.leaderboard = MOCK.leaderboard.filter((x) => String(x.id) !== String(id)); },
+  },
+  Committee: {
+    render: () => renderCarta(),
+    title: "Tambah Ahli Jawatankuasa",
+    fields: () => [
+      { key: "tier", label: "Tingkat (1 = paling atas)", type: "number", value: 4 },
+      { key: "name", label: "Nama", type: "text", required: true },
+      { key: "role", label: "Jawatan", type: "text" },
+    ],
+    buildRow: (v) => ({
+      editKey: "committee_" + Date.now(),
+      tier: Number(v.tier) || 4,
+      name: v.name,
+      role: v.role,
+      avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
+    }),
+    demoAdd: (row) => MOCK.committee.push(row),
+    demoDelete: (editKey) => { MOCK.committee = MOCK.committee.filter((x) => String(x.editKey) !== String(editKey)); },
+    demoUploadImage: (editKey, url) => {
+      const m = MOCK.committee.find((x) => String(x.editKey) === String(editKey));
+      if (m) m.avatar = url;
+    },
+  },
+  Events: {
+    render: () => renderKalendar(),
+    title: "Tambah Acara",
+    fields: () => [
+      { key: "day", label: "Hari (cth: 15)", type: "text", required: true },
+      { key: "month", label: "Bulan (cth: OGO)", type: "text", required: true },
+      { key: "title", label: "Tajuk Acara", type: "text", required: true },
+      { key: "desc", label: "Penerangan", type: "textarea" },
+    ],
+    buildRow: (v) => ({
+      id: "ev_" + Date.now(),
+      day: v.day,
+      month: v.month,
+      title: v.title,
+      desc: v.desc,
+      image: `https://picsum.photos/seed/event${Date.now()}/500/300`,
+      rulesLink: "",
+      registerLink: "",
+    }),
+    demoAdd: (row) => MOCK.events.push(row),
+    demoDelete: (id) => { MOCK.events = MOCK.events.filter((x) => String(x.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const e = MOCK.events.find((x) => String(x.id) === String(id));
+      if (e) e.image = url;
+    },
+  },
+  Wishlist: {
+    render: () => renderWakaf(),
+    title: "Tambah Item Wishlist",
+    fields: () => [
+      { key: "name", label: "Nama Item", type: "text", required: true },
+      { key: "qty", label: "Status (cth: 0 / 5 disumbang)", type: "text" },
+      { key: "progress", label: "Peratus Kemajuan (0-100)", type: "number" },
+    ],
+    buildRow: (v) => ({
+      id: "w_" + Date.now(),
+      name: v.name,
+      qty: v.qty,
+      progress: Number(v.progress) || 0,
+      image: `https://picsum.photos/seed/wish${Date.now()}/400/300`,
+      donated: false,
+    }),
+    demoAdd: (row) => MOCK.wishlist.push(row),
+    demoDelete: (id) => { MOCK.wishlist = MOCK.wishlist.filter((x) => String(x.id) !== String(id)); },
+    demoUploadImage: (id, url) => {
+      const w = MOCK.wishlist.find((x) => String(x.id) === String(id));
+      if (w) w.image = url;
+    },
+  },
+};
+
+async function handleAddSubmit(sheet, values) {
+  const cfg = CRUD[sheet];
+  const row = cfg.buildRow(values);
+
+  if (isDemo()) {
+    cfg.demoAdd(row);
+    showToast("Item ditambah (mod demo — sambungkan Google Sheet untuk simpan kekal).");
+    cfg.render();
+    return;
+  }
+
+  const result = await postToSheet({ action: "addRow", sheet, row });
+  if (result.status === "ok") {
+    showToast("Item berjaya ditambah.");
+    cfg.render();
+  } else {
+    showToast("Gagal menambah item.", "error");
+  }
+}
+
+async function handleDeleteClick(sheet, id) {
+  if (!window.confirm("Padam item ini? Tindakan ini tidak boleh diundur.")) return;
+  const cfg = CRUD[sheet];
+
+  if (isDemo()) {
+    cfg.demoDelete(id);
+    showToast("Item dipadam (mod demo).");
+    cfg.render();
+    return;
+  }
+
+  const result = await postToSheet({ action: "deleteRow", sheet, id });
+  if (result.status === "ok") {
+    showToast("Item berjaya dipadam.");
+    cfg.render();
+  } else {
+    showToast("Gagal memadam item.", "error");
+  }
+}
+
+async function handleImageFileChosen(file, sheet, row, column) {
+  const dataUrl = await fileToDataUrl(file);
+  const cfg = CRUD[sheet];
+
+  if (isDemo()) {
+    cfg.demoUploadImage(row, dataUrl);
+    showToast("Gambar dikemas kini (mod demo).");
+    cfg.render();
+    return;
+  }
+
+  showToast("Sedang memuat naik gambar...");
+  const result = await postToSheet({ action: "uploadImage", dataUrl, filename: file.name, sheet, row, column });
+  if (result.status === "ok") {
+    showToast("Gambar berjaya dimuat naik.");
+    cfg.render();
+  } else {
+    showToast("Gagal memuat naik gambar.", "error");
+  }
+}
+
+async function handleLinkEditClick(btn) {
+  const sheet = btn.dataset.sheet;
+  const row = btn.dataset.row;
+  const column = btn.dataset.col;
+  const current = btn.dataset.current || "";
+  const url = window.prompt("Masukkan URL pautan (kosongkan untuk buang):", current);
+  if (url === null) return;
+
+  if (isDemo()) {
+    const ev = MOCK.events.find((x) => String(x.id) === String(row));
+    if (ev) ev[column] = url;
+    showToast("Pautan dikemas kini (mod demo).");
+    renderKalendar();
+    return;
+  }
+
+  const result = await postToSheet({ action: "update", sheet, row, column, value: url });
+  if (result.status === "ok") {
+    showToast("Pautan berjaya dikemas kini.");
+    renderKalendar();
+  } else {
+    showToast("Gagal mengemas kini pautan.", "error");
+  }
+}
+
+/** Small HTML builders reused by every render*() function below. */
+function deleteBtnHTML(sheet, id) {
+  return `<button type="button" class="item-delete-btn" data-sheet="${sheet}" data-id="${id}" title="Padam item">${icon("trash")}</button>`;
+}
+function imgEditBtnHTML(sheet, row, column, title = "Tukar gambar") {
+  return `<button type="button" class="img-edit-trigger" data-sheet="${sheet}" data-row="${row}" data-col="${column}" title="${title}">${icon("camera")}</button>`;
+}
+function addTileHTML(sheet, label, { category, inline } = {}) {
+  const cls = inline ? "add-tile add-tile--inline" : "add-tile";
+  const catAttr = category ? `data-category="${category}"` : "";
+  return `<button type="button" class="${cls}" data-sheet="${sheet}" ${catAttr}>${icon("plus")}<span>${label}</span></button>`;
+}
+
+let pendingImageTarget = null;
+function triggerImageUpload(sheet, row, column) {
+  pendingImageTarget = { sheet, row, column };
+  document.getElementById("globalImageInput").click();
+}
+
+function handleAddTileClick(el) {
+  const sheet = el.dataset.sheet;
+  const category = el.dataset.category;
+  const cfg = CRUD[sheet];
+  if (!cfg) return;
+
+  openFormModal({
+    title: cfg.title,
+    fields: cfg.fields({ category }),
+    onSubmit: (values) => handleAddSubmit(sheet, values),
+  });
+}
+
+/** Wires the single reusable file input + one delegated click listener that
+ *  powers every add / delete / image-upload / link-edit control on the page,
+ *  regardless of when their markup was rendered (re-render-proof). */
+function initAdminCRUD() {
+  document.getElementById("globalImageInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file || !pendingImageTarget) return;
+    const { sheet, row, column } = pendingImageTarget;
+    await handleImageFileChosen(file, sheet, row, column);
+  });
+
+  document.addEventListener("click", (e) => {
+    const uploadTrigger = e.target.closest(".img-edit-trigger");
+    if (uploadTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      triggerImageUpload(uploadTrigger.dataset.sheet, uploadTrigger.dataset.row, uploadTrigger.dataset.col);
+      return;
+    }
+
+    const delBtn = e.target.closest(".item-delete-btn");
+    if (delBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleDeleteClick(delBtn.dataset.sheet, delBtn.dataset.id);
+      return;
+    }
+
+    const addTile = e.target.closest(".add-tile");
+    if (addTile) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddTileClick(addTile);
+      return;
+    }
+
+    const linkEditBtn = e.target.closest(".link-edit-btn");
+    if (linkEditBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleLinkEditClick(linkEditBtn);
+      return;
+    }
+  });
+}
+
+/** Generic modal: builds inputs from a `fields` array and calls
+ *  onSubmit(values) with { fieldKey: value } when "Simpan" is clicked. */
+function openFormModal({ title, fields, onSubmit }) {
+  const modal = document.getElementById("formModal");
+  document.getElementById("formModalTitle").textContent = title;
+
+  const fieldsEl = document.getElementById("formModalFields");
+  fieldsEl.innerHTML = fields
+    .map((f, i) => {
+      const id = `formField_${i}`;
+      let inputHTML;
+      if (f.type === "textarea") {
+        inputHTML = `<textarea id="${id}" rows="3" placeholder="${f.placeholder || ""}">${f.value || ""}</textarea>`;
+      } else if (f.type === "select") {
+        inputHTML = `<select id="${id}">${f.options.map((o) => `<option value="${o}">${o}</option>`).join("")}</select>`;
+      } else {
+        inputHTML = `<input id="${id}" type="${f.type || "text"}" placeholder="${f.placeholder || ""}" value="${f.value || ""}">`;
+      }
+      return `<label class="form-field"><span>${f.label}${f.required ? " *" : ""}</span>${inputHTML}</label>`;
+    })
+    .join("");
+
+  modal.classList.add("show");
+
+  const oldSubmitBtn = document.getElementById("formModalSubmit");
+  const submitBtn = oldSubmitBtn.cloneNode(true); // strips old listeners from previous opens
+  oldSubmitBtn.replaceWith(submitBtn);
+
+  submitBtn.addEventListener("click", async () => {
+    const values = {};
+    fields.forEach((f, i) => { values[f.key] = document.getElementById(`formField_${i}`).value; });
+
+    const missing = fields.find((f) => f.required && !values[f.key]);
+    if (missing) {
+      showToast(`Sila isi "${missing.label}".`, "error");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `${icon("spinner")} Menyimpan...`;
+    await onSubmit(values);
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Simpan";
+    modal.classList.remove("show");
+  });
+
+  document.getElementById("formModalCancel").onclick = () => modal.classList.remove("show");
 }
 
 // ==========================================================================
@@ -365,6 +771,8 @@ async function renderHome() {
 
   // Hero uses the first announcement
   const hero = announcements[0];
+  const heroDeleteWrap = document.getElementById("heroDeleteWrap");
+  const heroImgBtn = document.getElementById("heroImgEditBtn");
   if (hero) {
     const heroImg = document.querySelector("#heroBanner .hero-media img");
     const heroTitle = document.querySelector('[data-editable="announcement-title"]');
@@ -372,8 +780,12 @@ async function renderHome() {
     if (hero.image) heroImg.src = hero.image;
     heroTitle.textContent = hero.title;
     heroDesc.textContent = hero.description;
-    heroTitle.dataset.row = hero.id || 1;
-    heroDesc.dataset.row = hero.id || 1;
+    heroTitle.dataset.row = hero.id;
+    heroDesc.dataset.row = hero.id;
+    heroDeleteWrap.innerHTML = `<button type="button" class="hero-delete-btn item-delete-btn" data-sheet="Announcements" data-id="${hero.id}" title="Padam pengumuman ini">${icon("trash")} Padam</button>`;
+    heroImgBtn.dataset.sheet = "Announcements";
+    heroImgBtn.dataset.row = hero.id;
+    heroImgBtn.dataset.col = "image";
   }
 
   // Marquee — duplicate items for a seamless infinite loop
@@ -385,6 +797,8 @@ async function renderHome() {
       <div class="marquee-item">
         <img src="${item.img}" alt="${item.caption}" loading="lazy">
         <div class="marquee-caption">${item.caption}</div>
+        ${deleteBtnHTML("Activities", item.id)}
+        ${imgEditBtnHTML("Activities", item.id, "img", "Tukar gambar aktiviti")}
       </div>`
       )
       .join("");
@@ -392,17 +806,19 @@ async function renderHome() {
 
   // Remaining announcements grid (skip the hero one)
   const grid = document.getElementById("announcementGrid");
-  grid.innerHTML = announcements
-    .slice(1)
-    .map(
-      (a) => `
+  grid.innerHTML =
+    announcements
+      .slice(1)
+      .map(
+        (a) => `
     <div class="glass-card announcement-card">
+      ${deleteBtnHTML("Announcements", a.id)}
       <h3 data-editable="announcement-title-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="Title">${a.title}</h3>
       <p data-editable="announcement-desc-${a.id}" data-sheet="Announcements" data-row="${a.id}" data-col="Description">${a.description}</p>
       <span class="date-tag">${formatDate(a.date)}</span>
     </div>`
-    )
-    .join("");
+      )
+      .join("") + addTileHTML("Announcements", "Tambah Pengumuman");
 
   wireInlineEditing(grid);
   wireInlineEditing(document.querySelector(".hero"));
@@ -434,6 +850,8 @@ async function renderPustaka() {
             (book) => `
           <div class="book-card" data-book-id="${book.id}">
             <img src="${book.cover}" alt="${book.title}" loading="lazy">
+            ${deleteBtnHTML("Books", book.id)}
+            ${imgEditBtnHTML("Books", book.id, "cover", "Tukar kulit buku")}
             <div class="book-card-overlay">
               <h4>${book.title}</h4>
               <p>${book.synopsis}</p>
@@ -442,14 +860,18 @@ async function renderPustaka() {
           </div>`
           )
           .join("")}
+        ${addTileHTML("Books", "Tambah Buku", { category: row.category })}
       </div>
     </div>`
     )
     .join("");
 
-  // click card -> open detail modal; click button -> reserve (stop propagation)
+  // click card -> open detail modal; click button/admin-control -> handled separately
   container.querySelectorAll(".book-card").forEach((card) => {
-    card.addEventListener("click", () => openBookModal(card.dataset.bookId, rows));
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".item-delete-btn, .img-edit-trigger, .book-borrow-btn")) return;
+      openBookModal(card.dataset.bookId, rows);
+    });
   });
   container.querySelectorAll(".book-borrow-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
@@ -476,6 +898,7 @@ function openBookModal(bookId, rows) {
   content.innerHTML = `
     <div class="book-modal-hero">
       <img src="${book.cover}" alt="${book.title}">
+      ${imgEditBtnHTML("Books", book.id, "cover", "Tukar kulit buku")}
       <button class="modal-close" id="bookModalClose">${icon("x")}</button>
     </div>
     <div class="book-modal-body">
@@ -532,17 +955,19 @@ function drawElibrary(filter) {
   const grid = document.getElementById("elibraryGrid");
   const items = filter === "all" ? elibraryData : elibraryData.filter((i) => i.type === filter);
 
-  grid.innerHTML = items
-    .map(
-      (item) => `
+  grid.innerHTML =
+    items
+      .map(
+        (item) => `
     <div class="glass-card elib-card">
+      ${deleteBtnHTML("ELibrary", item.id)}
       <div class="elib-icon">${icon(ELIB_ICONS[item.type] || "file")}</div>
       <h3>${item.title}</h3>
       <div class="elib-meta">${item.type} · ${item.meta}</div>
       <a class="btn btn-ghost" href="${item.link}" target="_blank" rel="noopener">${icon("download")} Muat Turun</a>
     </div>`
-    )
-    .join("");
+      )
+      .join("") + addTileHTML("ELibrary", "Tambah Bahan");
 }
 
 // ==========================================================================
@@ -560,6 +985,7 @@ async function renderLeaderboard() {
     return `
       <div class="podium-item rank-${rank}">
         ${rank === 1 ? `<div class="podium-crown">${icon("crown")}</div>` : ""}
+        ${deleteBtnHTML("Leaderboard", person.id)}
         <div class="podium-avatar">${initials(person.name)}</div>
         <div class="podium-name">${person.name}</div>
         <div class="podium-class">${person.kelas}</div>
@@ -570,10 +996,11 @@ async function renderLeaderboard() {
 
   const list = document.getElementById("leaderboardList");
   const maxScore = sorted[0] ? sorted[0].score : 1;
-  list.innerHTML = sorted
-    .slice(3)
-    .map(
-      (p, i) => `
+  list.innerHTML =
+    sorted
+      .slice(3)
+      .map(
+        (p, i) => `
     <div class="lb-row">
       <div class="lb-rank">#${i + 4}</div>
       <div class="lb-avatar">${initials(p.name)}</div>
@@ -583,9 +1010,10 @@ async function renderLeaderboard() {
       </div>
       <div class="lb-bar-wrap"><div class="lb-bar" style="width:${(p.score / maxScore) * 100}%"></div></div>
       <div class="lb-score">${p.score}</div>
+      ${deleteBtnHTML("Leaderboard", p.id)}
     </div>`
-    )
-    .join("");
+      )
+      .join("") + `<div class="lb-add-row">${addTileHTML("Leaderboard", "Tambah Pelajar", { inline: true })}</div>`;
 }
 
 function initials(name) {
@@ -601,15 +1029,18 @@ async function renderCarta() {
   const container = document.getElementById("orgChart");
 
   const tiers = [...new Set(committee.map((c) => c.tier))].sort((a, b) => a - b);
-  container.innerHTML = tiers
-    .map((tier) => {
-      const members = committee.filter((c) => c.tier === tier);
-      return `
+  container.innerHTML =
+    tiers
+      .map((tier) => {
+        const members = committee.filter((c) => c.tier === tier);
+        return `
       <div class="org-tier">
         ${members
           .map(
             (m) => `
           <div class="glass-card org-card">
+            ${deleteBtnHTML("Committee", m.editKey)}
+            ${imgEditBtnHTML("Committee", m.editKey, "avatar", "Tukar gambar")}
             <img class="org-avatar" src="${m.avatar}" alt="${m.name}">
             <div class="org-name" data-editable="${m.editKey}-name" data-sheet="Committee" data-row="${m.editKey}" data-col="Name">${m.name}</div>
             <div class="org-role" data-editable="${m.editKey}-role" data-sheet="Committee" data-row="${m.editKey}" data-col="Role">${m.role}</div>
@@ -617,8 +1048,8 @@ async function renderCarta() {
           )
           .join("")}
       </div>`;
-    })
-    .join("");
+      })
+      .join("") + `<div class="org-add-row">${addTileHTML("Committee", "Tambah Ahli", { inline: true })}</div>`;
 
   wireInlineEditing(container);
 }
@@ -631,23 +1062,30 @@ async function renderKalendar() {
   const events = await fetchSheet("Events", MOCK.events);
   const grid = document.getElementById("eventGrid");
 
-  grid.innerHTML = events
-    .map(
-      (ev) => `
+  grid.innerHTML =
+    events
+      .map(
+        (ev) => `
     <div class="glass-card event-card">
-      <div class="event-card-img"><img src="${ev.image}" alt="${ev.title}" loading="lazy"></div>
+      ${deleteBtnHTML("Events", ev.id)}
+      <div class="event-card-img">
+        <img src="${ev.image}" alt="${ev.title}" loading="lazy">
+        ${imgEditBtnHTML("Events", ev.id, "image", "Tukar gambar acara")}
+      </div>
       <div class="event-date-badge"><div class="day">${ev.day}</div><div class="month">${ev.month}</div></div>
       <div class="event-card-body">
         <h3>${ev.title}</h3>
         <p>${ev.desc}</p>
         <div class="event-card-actions">
-          <button class="btn btn-ghost">${icon("clipboard")} Peraturan</button>
-          <button class="btn btn-primary">${icon("edit")} Daftar</button>
+          <a class="btn btn-ghost" href="${ev.rulesLink || "#"}" target="_blank" rel="noopener">${icon("clipboard")} Peraturan</a>
+          <button type="button" class="link-edit-btn" data-sheet="Events" data-row="${ev.id}" data-col="rulesLink" data-current="${ev.rulesLink || ""}" title="Tetapkan pautan peraturan">${icon("link")}</button>
+          <a class="btn btn-primary" href="${ev.registerLink || "#"}" target="_blank" rel="noopener">${icon("edit")} Daftar</a>
+          <button type="button" class="link-edit-btn" data-sheet="Events" data-row="${ev.id}" data-col="registerLink" data-current="${ev.registerLink || ""}" title="Tetapkan pautan pendaftaran">${icon("link")}</button>
         </div>
       </div>
     </div>`
-    )
-    .join("");
+      )
+      .join("") + addTileHTML("Events", "Tambah Acara");
 }
 
 // ==========================================================================
@@ -658,11 +1096,16 @@ async function renderWakaf() {
   const wishlist = await fetchSheet("Wishlist", MOCK.wishlist);
   const grid = document.getElementById("wishlistGrid");
 
-  grid.innerHTML = wishlist
-    .map(
-      (w) => `
+  grid.innerHTML =
+    wishlist
+      .map(
+        (w) => `
     <div class="glass-card wish-card ${w.donated ? "donated" : ""}" data-wish-id="${w.id}">
-      <div class="wish-img"><img src="${w.image}" alt="${w.name}" loading="lazy"></div>
+      ${deleteBtnHTML("Wishlist", w.id)}
+      <div class="wish-img">
+        <img src="${w.image}" alt="${w.name}" loading="lazy">
+        ${imgEditBtnHTML("Wishlist", w.id, "image", "Tukar gambar item")}
+      </div>
       <h3>${w.name}</h3>
       <div class="wish-meta"><span class="wish-qty">${w.qty}</span></div>
       <div class="wish-progress"><div class="wish-progress-bar" style="width:${w.progress}%"></div></div>
@@ -670,8 +1113,8 @@ async function renderWakaf() {
         ${w.donated ? `${icon("checkCircle")} Terima Kasih!` : `${icon("gift")} Sumbang Item Ini`}
       </button>
     </div>`
-    )
-    .join("");
+      )
+      .join("") + addTileHTML("Wishlist", "Tambah Item");
 
   grid.querySelectorAll(".wish-donate-btn").forEach((btn) => {
     btn.addEventListener("click", () => donateItem(btn.dataset.wishId, btn));
@@ -705,6 +1148,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initNavigation();
   initMobileSidebar();
   initAdminMode();
+  initAdminCRUD();
 
   renderHome();
   renderPustaka();

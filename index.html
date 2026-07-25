@@ -80,12 +80,18 @@
         <div class="hero-media">
           <img src="https://picsum.photos/seed/psshero/1600/700" alt="Buletin Pengumuman">
           <div class="hero-gradient"></div>
+          <button type="button" class="img-edit-trigger hero-img-edit-btn" id="heroImgEditBtn" data-sheet="Announcements" data-row="1" data-col="image" title="Tukar gambar hero">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1-2h7l1 2h2A1.5 1.5 0 0 1 20 8.5v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          </button>
         </div>
         <div class="hero-content">
-          <span class="hero-tag">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h2l4 4v-14l-4 4H4a1 1 0 0 0-1 1Z"/><path d="M14 8.5a4 4 0 0 1 0 7"/><path d="M17 5a8 8 0 0 1 0 14"/></svg>
-            Buletin Pengumuman
-          </span>
+          <div class="hero-tag-row">
+            <span class="hero-tag">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 0 0 1 1h2l4 4v-14l-4 4H4a1 1 0 0 0-1 1Z"/><path d="M14 8.5a4 4 0 0 1 0 7"/><path d="M17 5a8 8 0 0 1 0 14"/></svg>
+              Buletin Pengumuman
+            </span>
+            <span id="heroDeleteWrap"></span>
+          </div>
           <h1 class="hero-title" contenteditable="false" data-editable="announcement-title" data-sheet="Announcements" data-row="1" data-col="Title">
             Minggu Membaca 2026 Bermula 4 Ogos!
           </h1>
@@ -110,6 +116,10 @@
         <div class="section-heading">
           <h2>Lampiran Aktiviti Terkini</h2>
           <span class="section-sub">Kemas kini automatik dari Google Sheet</span>
+          <button type="button" class="add-tile add-tile--inline" data-sheet="Activities">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Tambah Aktiviti</span>
+          </button>
         </div>
         <div class="marquee-wrap">
           <div class="marquee-track" id="marqueeTrack">
@@ -128,9 +138,15 @@
 
     <!-- ============ PUSTAKA INTERAKTIF (NETFLIX CAROUSEL) ============ -->
     <section class="page" id="page-pustaka">
-      <div class="page-header">
-        <h1>Pustaka Interaktif</h1>
-        <p>Terokai koleksi buku popular pilihan Pusat Sumber Sekolah</p>
+      <div class="page-header page-header-row">
+        <div>
+          <h1>Pustaka Interaktif</h1>
+          <p>Terokai koleksi buku popular pilihan Pusat Sumber Sekolah</p>
+        </div>
+        <button type="button" class="add-tile add-tile--inline" data-sheet="Books">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span>Tambah Kategori/Buku Baharu</span>
+        </button>
       </div>
 
       <div id="carouselRows"><!-- populated by JS: rows of book carousels --></div>
@@ -220,6 +236,21 @@
 <div class="modal-overlay" id="bookModal">
   <div class="modal-box modal-box-wide" id="bookModalContent"></div>
 </div>
+
+<!-- ===================== GENERIC "TAMBAH" FORM MODAL (Admin Mode) ===================== -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal-box">
+    <h3 id="formModalTitle">Tambah Item</h3>
+    <div class="form-fields" id="formModalFields"><!-- inputs injected by JS --></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="formModalCancel">Batal</button>
+      <button class="btn btn-primary" id="formModalSubmit">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden, reused for every "Tukar Gambar" upload across the whole dashboard -->
+<input type="file" id="globalImageInput" accept="image/*" hidden>
 
 <script src="script.js"></script>
 </body>

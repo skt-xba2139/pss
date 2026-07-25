@@ -305,6 +305,8 @@ a { text-decoration: none; color: inherit; }
 }
 .page-header p { color: var(--text-secondary); margin-top: 6px; font-size: 14.5px; }
 
+.page-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
 .section-block { margin: 40px 0; }
 .section-heading { display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
 .section-heading h2 { font-size: 20px; font-weight: 700; }
@@ -1023,3 +1025,177 @@ a { text-decoration: none; color: inherit; }
   .hero-actions .btn { width: 100%; justify-content: center; }
   .book-card { flex-basis: 140px; height: 210px; }
 }
+
+/* ==========================================================================
+   ADMIN CRUD CONTROLS — delete buttons, image-upload triggers, "Tambah"
+   tiles and the generic form modal. Everything here stays display:none
+   until <body> has .admin-mode, so regular visitors never see them.
+   ========================================================================== */
+
+/* Anchor points for absolutely-positioned admin controls */
+.podium-item,
+.lb-row,
+.marquee-item,
+.wish-img,
+.event-card-img {
+  position: relative;
+}
+
+/* ---------- delete button (top-right corner, red) ---------- */
+.item-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ff6b70;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  transition: all 0.2s var(--ease);
+}
+.admin-mode .item-delete-btn { display: flex; }
+.item-delete-btn:hover { background: var(--red); color: #fff; transform: scale(1.1); }
+.item-delete-btn .icon { width: 14px; height: 14px; }
+
+/* ---------- image-upload trigger (top-left corner, neutral) ---------- */
+.img-edit-trigger {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  transition: all 0.2s var(--ease);
+}
+.admin-mode .img-edit-trigger { display: flex; }
+.img-edit-trigger:hover { background: var(--gold); color: #141414; transform: scale(1.1); }
+.img-edit-trigger .icon { width: 14px; height: 14px; }
+
+/* hero variant: bigger, positioned within the large banner */
+.hero-img-edit-btn {
+  top: 20px;
+  right: 20px;
+  left: auto;
+  width: 42px;
+  height: 42px;
+  z-index: 4;
+}
+.hero-img-edit-btn .icon { width: 18px; height: 18px; }
+
+/* hero "delete announcement" control: inline pill next to the tag, not a corner icon */
+.hero-tag-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.hero-tag-row .hero-tag { margin-bottom: 0; }
+.hero-delete-btn.item-delete-btn {
+  position: static;
+  width: auto;
+  height: auto;
+  border-radius: 999px;
+  padding: 6px 14px;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(229, 9, 20, 0.16);
+  border: 1px solid rgba(229, 9, 20, 0.5);
+}
+.hero-delete-btn.item-delete-btn .icon { width: 13px; height: 13px; }
+
+/* ---------- "+ Tambah" tiles ---------- */
+.add-tile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px dashed var(--glass-border-hover);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 180px;
+  width: 100%;
+}
+.admin-mode .add-tile { display: flex; }
+.add-tile:hover { border-color: var(--red); color: var(--text-primary); background: rgba(229, 9, 20, 0.06); }
+.add-tile .icon { width: 26px; height: 26px; }
+
+.carousel-scroller .add-tile { flex: 0 0 170px; height: 250px; width: auto; min-height: 0; }
+
+.add-tile--inline {
+  flex-direction: row;
+  min-height: 0;
+  border-style: solid;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  width: auto;
+}
+.add-tile--inline .icon { width: 16px; height: 16px; }
+
+.lb-add-row,
+.org-add-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.section-heading .add-tile--inline { margin-left: auto; }
+
+/* ---------- link-edit button (Kalendar Peraturan/Daftar) ---------- */
+.link-edit-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease);
+}
+.admin-mode .link-edit-btn { display: inline-flex; }
+.link-edit-btn:hover { color: var(--gold); border-color: var(--gold); }
+.link-edit-btn .icon { width: 15px; height: 15px; }
+
+/* ---------- generic "Tambah" form modal ---------- */
+.form-fields { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
+.form-field input,
+.form-field textarea,
+.form-field select {
+  font-family: inherit;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  resize: vertical;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.15);
+}
+.form-field select { cursor: pointer; }
+#formModal .modal-box { max-width: 460px; }
