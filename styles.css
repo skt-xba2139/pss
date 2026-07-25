@@ -367,24 +367,37 @@ a { text-decoration: none; color: inherit; }
   gap: 12px;
 }
 
-.admin-toggle-btn {
+/* compact icon-only row for Mod Gelap/Terang + Mod Admin — replaces the
+   old stacked full-width text buttons with two small square icon buttons
+   side by side (title="" attribute covers discoverability via tooltip) */
+.footer-icon-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.icon-toggle-btn {
+  flex: 1;
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  justify-content: center;
+  height: 40px;
   border-radius: var(--radius-sm);
   background: var(--glass-fill);
   backdrop-filter: blur(14px);
   border: 1px solid var(--border-glass);
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
   transition: all 0.25s var(--ease);
 }
-.admin-toggle-btn .icon { width: 15px; height: 15px; }
-.admin-toggle-btn:hover { border-color: var(--red); color: var(--text-primary); box-shadow: 0 4px 16px rgba(var(--red-rgb),0.15); }
+.icon-toggle-btn .icon { width: 17px; height: 17px; }
+.icon-toggle-btn:hover { border-color: var(--gold); color: var(--text-primary); box-shadow: var(--glow-gold-sm); }
+
+.admin-toggle-btn:hover { border-color: var(--red); box-shadow: 0 4px 16px rgba(var(--red-rgb),0.15); }
 .admin-toggle-btn .admin-dot {
-  width: 8px; height: 8px; border-radius: 50%;
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px; border-radius: 50%;
   background: var(--text-muted);
   transition: background 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
@@ -437,7 +450,14 @@ a { text-decoration: none; color: inherit; }
 .hamburger-btn.open span:nth-child(2) { opacity: 0; }
 .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-.mobile-logo { font-weight: 800; font-size: 18px; }
+.mobile-logo {
+  font-weight: 700;
+  font-size: 13px;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .mobile-logo span { color: var(--red); }
 .mobile-spacer { flex: 1; }
 
@@ -1159,11 +1179,21 @@ a { text-decoration: none; color: inherit; }
   padding: 28px;
   width: 100%;
   max-width: 380px;
+  min-width: 280px;
+  min-height: 160px;
   backdrop-filter: var(--glass-blur-strong);
   -webkit-backdrop-filter: var(--glass-blur-strong);
   box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(var(--red-rgb), 0.1), inset 0 1px 0 rgba(255,255,255,0.12);
   animation: modal-pop 0.35s var(--ease);
+  resize: both;
+  overflow: auto;
+  cursor: move;
 }
+/* interactive elements inside should keep their normal cursor, not "move" */
+.modal-box button, .modal-box input, .modal-box textarea, .modal-box select, .modal-box a {
+  cursor: auto;
+}
+.modal-box.dragging { animation: none; user-select: none; }
 @keyframes modal-pop {
   from { opacity: 0; transform: scale(0.94) translateY(8px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
@@ -1618,22 +1648,6 @@ a { text-decoration: none; color: inherit; }
 /* light mode: show the moon icon instead */
 :root[data-theme="light"] .theme-mode-toggle .icon-moon { display: block; }
 
-.theme-mode-toggle--inline {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--glass-fill);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--border-glass);
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-.theme-mode-toggle--inline:hover { color: var(--text-primary); border-color: var(--gold); box-shadow: var(--glow-gold-sm); }
-.theme-mode-toggle-label::after { content: "Mod Gelap"; }
-:root[data-theme="light"] .theme-mode-toggle-label::after { content: "Mod Terang"; }
-.theme-mode-toggle-label { font-size: 0; }
-.theme-mode-toggle-label::after { font-size: 13px; }
 
 #themeModeToggleMobile {
   width: 34px;
@@ -1742,3 +1756,37 @@ a { text-decoration: none; color: inherit; }
   outline: 2px dashed var(--gold);
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   LIGHT MODE CONTRAST FIXES — a handful of controls used a hardcoded
+   rgba(255,255,255,...) "highlight on dark" overlay that goes invisible
+   once the surface behind them is *also* light. Give light mode its own
+   dark-tinted overlay instead so every control stays visible in both modes.
+   ========================================================================== */
+
+:root[data-theme="light"] .nav-icon-edit-btn,
+:root[data-theme="light"] #themeModeToggleMobile,
+:root[data-theme="light"] .icon-toggle-btn {
+  background: rgba(0, 0, 0, 0.06);
+}
+:root[data-theme="light"] .nav-icon-edit-btn:hover {
+  background: rgba(245, 197, 24, 0.18);
+}
+
+/* the admin toolbar's accent-tinted gradient reads fine on a dark page but
+   washes out to near-white-on-white in light mode — give it a visible
+   surface + border, and darken the gold badge text for real contrast. */
+:root[data-theme="light"] .admin-toolbar {
+  background: linear-gradient(90deg, rgba(245,197,24,0.14), rgba(229,9,20,0.09));
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+:root[data-theme="light"] .admin-toolbar-badge { color: #8a6d00; }
+:root[data-theme="light"] .admin-toolbar-hint { color: var(--text-muted); }
+:root[data-theme="light"] .admin-toggle-btn.on { color: #8a6d00; }
+
+/* toast + modal already use the token-based glass fills, which flip
+   correctly — but their bordered accent states used pure-white-based
+   rgba mixes for the icon halo; make sure the icon itself stays legible */
+:root[data-theme="light"] .toast.error .icon { color: var(--red); }
+:root[data-theme="light"] .toast.success .icon { color: #1e8449; }

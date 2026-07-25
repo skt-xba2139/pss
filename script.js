@@ -747,6 +747,7 @@ function openFormModal({ title, fields, onSubmit }) {
     })
     .join("");
 
+  resetDialogPosition(document.getElementById("formModalBox"));
   modal.classList.add("show");
 
   const oldSubmitBtn = document.getElementById("formModalSubmit");
@@ -853,6 +854,7 @@ function initAdminMode() {
       setAdminMode(false);
       return;
     }
+    resetDialogPosition(document.getElementById("adminModalBox"));
     modal.classList.add("show");
     pinInput.value = "";
     pinInput.focus();
@@ -1149,6 +1151,9 @@ async function renderSettings() {
   document.querySelectorAll('[data-setting-key="brand_line2"]').forEach((el) => (el.textContent = SETTINGS.brand_line2));
   document.querySelectorAll('[data-setting-key="brand_line3"]').forEach((el) => (el.textContent = SETTINGS.brand_line3));
 
+  const mobileLogo = document.getElementById("mobileLogo");
+  if (mobileLogo) mobileLogo.textContent = `${SETTINGS.brand_line1} ${SETTINGS.brand_line2}`;
+
   NAV_SECTIONS.forEach((section) => {
     const labelValue = SETTINGS[`nav_${section}_label`];
     const navItem = document.querySelector(`.nav-item[data-section="${section}"]`);
@@ -1216,6 +1221,67 @@ async function handleNavIconEditClick(btn) {
   }
 }
 
+// ==========================================================================
+// DRAGGABLE MODALS — every dialog box can be moved by dragging its
+// background (grabbing a button/input/link inside it still works normally)
+// and resized via the native browser resize handle (CSS `resize: both` on
+// .modal-box). Position resets each time a dialog is (re)opened so it can
+// never get dragged somewhere and "lost" between uses.
+// ==========================================================================
+
+function makeDialogDraggable(dialogEl) {
+  if (!dialogEl || dialogEl.dataset.dragWired) return;
+  dialogEl.dataset.dragWired = "true";
+
+  let dragging = false;
+  let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+  dialogEl.addEventListener("mousedown", (e) => {
+    if (e.target.closest("button, input, textarea, select, a")) return;
+    const rect = dialogEl.getBoundingClientRect();
+    dragging = true;
+    dialogEl.classList.add("dragging");
+    dialogEl.style.position = "fixed";
+    dialogEl.style.left = rect.left + "px";
+    dialogEl.style.top = rect.top + "px";
+    dialogEl.style.margin = "0";
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = rect.left;
+    startTop = rect.top;
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    dialogEl.style.left = startLeft + (e.clientX - startX) + "px";
+    dialogEl.style.top = startTop + (e.clientY - startY) + "px";
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+    dialogEl.classList.remove("dragging");
+  });
+}
+
+/** Clears any drag/resize position so a dialog reopens centered, not
+ *  wherever it was last left. Call right before showing a modal. */
+function resetDialogPosition(dialogEl) {
+  if (!dialogEl) return;
+  dialogEl.style.position = "";
+  dialogEl.style.left = "";
+  dialogEl.style.top = "";
+  dialogEl.style.margin = "";
+  dialogEl.style.width = "";
+  dialogEl.style.height = "";
+}
+
+function initDraggableModals() {
+  ["adminModalBox", "bookModalContent", "formModalBox", "cssModalBox"].forEach((id) => {
+    makeDialogDraggable(document.getElementById(id));
+  });
+}
+
 function initCustomCssModal() {
   const openBtn = document.getElementById("openCssModalBtn");
   const modal = document.getElementById("cssModal");
@@ -1223,6 +1289,7 @@ function initCustomCssModal() {
 
   openBtn.addEventListener("click", () => {
     textarea.value = SETTINGS.custom_css || "";
+    resetDialogPosition(document.getElementById("cssModalBox"));
     modal.classList.add("show");
   });
 
@@ -1500,6 +1567,7 @@ function openBookModal(bookId, rows) {
       <button class="btn btn-primary book-borrow-btn" data-book-id="${book.id}">${icon("book")} Tempah Buku</button>
     </div>`;
 
+  resetDialogPosition(content);
   modal.classList.add("show");
   document.getElementById("bookModalClose").addEventListener("click", () => modal.classList.remove("show"));
   content.querySelector(".book-borrow-btn").addEventListener("click", (e) => reserveBook(book.id, e.target));
@@ -1757,6 +1825,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminCRUD();
   initThemeCustomizer();
   initCustomCssModal();
+  initDraggableModals();
   initTiltEffect();
   initHeroSpotlight();
   initThemeModeToggle();
