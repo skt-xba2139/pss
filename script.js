@@ -999,6 +999,13 @@ function initNavigation() {
       pages.forEach((p) => p.classList.remove("active"));
       document.getElementById(`page-${target}`).classList.add("active");
 
+      // The Pustaka carousel's drift setup measures real pixel widths, which
+      // only work once #page-pustaka is actually visible (display:none
+      // reports every width as 0) — retry it now in case the very first
+      // attempt (during initial load, while Home was still the active tab)
+      // had to bail out. No-ops instantly if it already succeeded.
+      if (target === "pustaka") finalizeCarouselDrift();
+
       closeMobileSidebar();
       document.getElementById("mainContent").scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -1682,18 +1689,12 @@ function slugifyOrderKey(text) {
   return String(text).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
 
-async function renderPustaka() {
-  const rows = await fetchSheet("Books", MOCK.books);
-  rows.forEach((row) => {
-    row.items = applySavedOrder(row.items, `books_${slugifyOrderKey(row.category)}`);
-  });
-  const container = document.getElementById("carouselRows");
-  const inAdminMode = document.body.classList.contains("admin-mode");
-
-  const buildBooks = (items) =>
-    items
-      .map(
-        (book) => `
+/** Shared by renderPustaka() and finalizeCarouselDrift() so both always
+ *  build the exact same card markup. */
+function buildBookCardsHTML(items) {
+  return items
+    .map(
+      (book) => `
           <div class="book-card" data-book-id="${book.id}">
             <img src="${book.cover}" alt="${book.title}" loading="lazy">
             ${deleteBtnHTML("Books", book.id)}
@@ -1704,15 +1705,29 @@ async function renderPustaka() {
               <button class="btn btn-primary book-borrow-btn" data-book-id="${book.id}">${icon("book")} Tempah Buku</button>
             </div>
           </div>`
-      )
-      .join("");
+    )
+    .join("");
+}
+
+// Cached by renderPustaka() so finalizeCarouselDrift() can re-run later
+// (e.g. the first time the admin actually opens the Pustaka tab) without
+// needing to re-fetch.
+let pustakaRowsCache = null;
+
+async function renderPustaka() {
+  const rows = await fetchSheet("Books", MOCK.books);
+  rows.forEach((row) => {
+    row.items = applySavedOrder(row.items, `books_${slugifyOrderKey(row.category)}`);
+  });
+  pustakaRowsCache = rows;
+  const container = document.getElementById("carouselRows");
+  const inAdminMode = document.body.classList.contains("admin-mode");
 
   // Always start with a single, true copy per row — duplicating up front
   // (the old approach) showed the exact same cover twice side by side the
   // moment a category had too few books to fill the row's width, since
   // there was nothing off-screen for the "loop" to hide. Render once here;
-  // duplication only happens afterward, and only for rows that actually
-  // need it (see the measuring pass below).
+  // duplication only happens afterward, in finalizeCarouselDrift().
   container.innerHTML = rows
     .map((row) => {
       // Keep the drift speed visually consistent across rows regardless of
@@ -1724,7 +1739,7 @@ async function renderPustaka() {
       <h3 class="carousel-row-title">${row.category}</h3>
       <div class="carousel-viewport" data-category="${row.category}">
         <div class="carousel-track" style="--drift-duration:${driftDuration}">
-          ${buildBooks(row.items)}
+          ${buildBookCardsHTML(row.items)}
           ${addTileHTML("Books", "Tambah Buku", { category: row.category })}
         </div>
       </div>
@@ -1732,60 +1747,102 @@ async function renderPustaka() {
     })
     .join("");
 
-  // Now that the single copy is actually laid out, measure each row and
-  // repeat its books just enough times that the track is always wider than
-  // the viewport — a category with only 1-3 books needs several repeats to
-  // get there, a category with 15 only needs the usual 2. This guarantees
-  // the row ALWAYS has genuine off-screen content to drift through (so it
-  // never stops moving), while never showing the same cover sitting twice
-  // side by side with nothing to hide it (the original "double" bug: a
-  // fixed 2x duplication wasn't enough overflow for short categories).
-  // The loop stays seamless at any repeat count because the CSS animation
-  // travels exactly one repeat's width (calc(-100% / var(--carousel-
-  // repeat))), not a hardcoded -50% — see .is-drifting in styles.css.
-  // Admin mode never repeats (each copy's delete/upload button would
-  // otherwise share the same data-book-id).
-  if (!inAdminMode) {
-    const viewports = container.querySelectorAll(".carousel-viewport");
-    rows.forEach((row, i) => {
-      const viewport = viewports[i];
-      if (!viewport) return;
-      const track = viewport.querySelector(".carousel-track");
-      const singleSetWidth = track.scrollWidth;
-      if (singleSetWidth <= 0) return;
-
-      const repeatCount = Math.min(
-        12,
-        Math.max(2, Math.ceil(viewport.clientWidth / singleSetWidth) + 1)
-      );
-      for (let r = 1; r < repeatCount; r++) {
-        track.insertAdjacentHTML("beforeend", buildBooks(row.items));
-      }
-      track.style.setProperty("--carousel-repeat", repeatCount);
-      track.classList.add("is-drifting");
-    });
-  }
-
   // click card -> open detail modal; click button/admin-control -> handled separately
-  // (wired last, after any duplication above, so the duplicated copies —
-  // which visitors can genuinely hover/click as they drift into view — get
-  // working handlers too, not just the original set.)
   container.querySelectorAll(".book-card").forEach((card) => {
+    card.dataset.wiredClick = "true";
     card.addEventListener("click", (e) => {
       if (e.target.closest(".item-delete-btn, .img-edit-trigger, .book-borrow-btn")) return;
-      openBookModal(card.dataset.bookId, rows);
+      openBookModal(card.dataset.bookId, pustakaRowsCache);
     });
   });
   container.querySelectorAll(".book-borrow-btn").forEach((btn) => {
+    btn.dataset.wiredClick = "true";
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       reserveBook(btn.dataset.bookId, btn);
     });
   });
 
-  container.querySelectorAll(".carousel-track").forEach((track) => {
-    const category = track.closest(".carousel-viewport").dataset.category;
-    makeSortable(track, `books_${slugifyOrderKey(category)}`, ".book-card", "bookId", "horizontal");
+  if (inAdminMode) {
+    container.querySelectorAll(".carousel-track").forEach((track) => {
+      const category = track.closest(".carousel-viewport").dataset.category;
+      makeSortable(track, `books_${slugifyOrderKey(category)}`, ".book-card", "bookId", "horizontal");
+    });
+  } else {
+    // Renders "Pustaka Interaktif" isn't necessarily the visible tab right
+    // now (Home is the default) — attempt the drift setup immediately in
+    // case it already is, and initNavigation() retries this again the
+    // moment the admin/visitor actually switches to this tab.
+    finalizeCarouselDrift();
+  }
+}
+
+/**
+ * Measures each carousel row and repeats its books just enough times that
+ * the track is always wider than the viewport — a category with only 1-3
+ * books needs several repeats to get there, a category with 15 only needs
+ * the usual 2. This guarantees the row ALWAYS has genuine off-screen
+ * content to drift through (so it never stops moving), while never showing
+ * the same cover sitting twice side by side with nothing to hide it.
+ *
+ * Every width read here (scrollWidth/clientWidth) is 0 while #page-pustaka
+ * itself is display:none (i.e. Home, not Pustaka, is the active tab) — so
+ * calling this while the page is hidden would wrongly conclude nothing
+ * needs to move and silently do nothing, forever. Bail out in that case;
+ * initNavigation() calls this again right after the tab actually becomes
+ * visible. Rows already marked "is-drifting" are skipped, so switching back
+ * to this tab later never re-duplicates a row twice.
+ */
+function finalizeCarouselDrift() {
+  const page = document.getElementById("page-pustaka");
+  if (!page || !page.classList.contains("active") || !pustakaRowsCache) return;
+
+  const container = document.getElementById("carouselRows");
+  const viewports = container.querySelectorAll(".carousel-viewport");
+  let addedAny = false;
+
+  pustakaRowsCache.forEach((row, i) => {
+    const viewport = viewports[i];
+    if (!viewport) return;
+    const track = viewport.querySelector(".carousel-track");
+    if (track.classList.contains("is-drifting")) return;
+
+    const singleSetWidth = track.scrollWidth;
+    if (singleSetWidth <= 0 || viewport.clientWidth <= 0) return; // still hidden somehow — try again next time
+
+    const repeatCount = Math.min(
+      12,
+      Math.max(2, Math.ceil(viewport.clientWidth / singleSetWidth) + 1)
+    );
+    for (let r = 1; r < repeatCount; r++) {
+      track.insertAdjacentHTML("beforeend", buildBookCardsHTML(row.items));
+    }
+    track.style.setProperty("--carousel-repeat", repeatCount);
+    track.classList.add("is-drifting");
+    addedAny = true;
+  });
+
+  if (!addedAny) return;
+
+  // The newly-duplicated cards are copies visitors can genuinely
+  // hover/click as they drift into view, so they need working handlers too
+  // — but the ORIGINAL cards already got theirs in renderPustaka(), so only
+  // wire whichever ones don't have the flag yet.
+  container.querySelectorAll(".book-card").forEach((card) => {
+    if (card.dataset.wiredClick) return;
+    card.dataset.wiredClick = "true";
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".item-delete-btn, .img-edit-trigger, .book-borrow-btn")) return;
+      openBookModal(card.dataset.bookId, pustakaRowsCache);
+    });
+  });
+  container.querySelectorAll(".book-borrow-btn").forEach((btn) => {
+    if (btn.dataset.wiredClick) return;
+    btn.dataset.wiredClick = "true";
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      reserveBook(btn.dataset.bookId, btn);
+    });
   });
 }
 
