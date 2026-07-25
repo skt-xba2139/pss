@@ -183,13 +183,13 @@ const MOCK = {
     { id: "ev3", day: "20", month: "OGO", title: "Hari Sukan Membaca", desc: "Aktiviti luar bilik darjah menggabungkan sukan dan cabaran bacaan.", image: "https://picsum.photos/seed/event3/500/300", rulesLink: "", registerLink: "" },
     { id: "ev4", day: "02", month: "SEP", title: "Mesyuarat Agung PSS", desc: "Mesyuarat tahunan jawatankuasa dan pelantikan pengawas baharu.", image: "https://picsum.photos/seed/event4/500/300", rulesLink: "", registerLink: "" },
   ],
-  wishlist: [
-    { id: "w1", name: "Bean Bag Sudut Bacaan", qty: "3 / 10 disumbang", progress: 30, image: "https://picsum.photos/seed/wish1/400/300", donated: false },
-    { id: "w2", name: "Buku Ensiklopedia Sains", qty: "5 / 20 disumbang", progress: 25, image: "https://picsum.photos/seed/wish2/400/300", donated: false },
-    { id: "w3", name: "Rak Buku Mudah Alih", qty: "1 / 4 disumbang", progress: 25, image: "https://picsum.photos/seed/wish3/400/300", donated: false },
-    { id: "w4", name: "Set Novel Remaja Popular", qty: "8 / 15 disumbang", progress: 53, image: "https://picsum.photos/seed/wish4/400/300", donated: false },
-    { id: "w5", name: "Skrin Projektor PSS", qty: "0 / 1 disumbang", progress: 0, image: "https://picsum.photos/seed/wish5/400/300", donated: false },
-    { id: "w6", name: "Headphone Pembelajaran", qty: "2 / 10 disumbang", progress: 20, image: "https://picsum.photos/seed/wish6/400/300", donated: false },
+  gallery: [
+    { id: "g1", image: "https://picsum.photos/seed/gallery1/700/700", caption: "Program Bacaan 2026" },
+    { id: "g2", image: "https://picsum.photos/seed/gallery2/700/700", caption: "Sudut Bacaan Baharu" },
+    { id: "g3", image: "https://picsum.photos/seed/gallery3/700/700", caption: "" },
+    { id: "g4", image: "https://picsum.photos/seed/gallery4/700/700", caption: "Lawatan Perpustakaan Negeri" },
+    { id: "g5", image: "https://picsum.photos/seed/gallery5/700/700", caption: "" },
+    { id: "g6", image: "https://picsum.photos/seed/gallery6/700/700", caption: "Hari Buku Sedunia" },
   ],
   heroSlides: [
     { id: "hero1", image: "https://picsum.photos/seed/psshero/1600/700" },
@@ -212,14 +212,14 @@ const MOCK = {
     nav_carta_icon: "",
     nav_kalendar_label: "Kalendar Acara",
     nav_kalendar_icon: "",
-    nav_wakaf_label: "Wakaf & Sumbangan",
-    nav_wakaf_icon: "",
+    nav_galeri_label: "Galeri Foto",
+    nav_galeri_icon: "",
     page_pustaka_desc: "Terokai koleksi buku popular pilihan Pusat Sumber Sekolah",
     page_elibrary_desc: "Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran",
     page_leaderboard_desc: "Top 10 Pembaca Teraktif Pusat Sumber Sekolah",
     page_carta_desc: "Jawatankuasa Pusat Sumber Sekolah",
     page_kalendar_desc: "Aktiviti akan datang, borang pendaftaran & peraturan",
-    page_wakaf_desc: "Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber",
+    page_galeri_desc: "Koleksi gambar Pusat Sumber Sekolah",
     custom_css: "",
   },
 };
@@ -501,27 +501,23 @@ const CRUD = {
       if (e) e.image = url;
     },
   },
-  Wishlist: {
-    render: () => renderWakaf(),
-    title: "Tambah Item Wishlist",
-    fields: () => [
-      { key: "name", label: "Nama Item", type: "text", required: true },
-      { key: "qty", label: "Status (cth: 0 / 5 disumbang)", type: "text" },
-      { key: "progress", label: "Peratus Kemajuan (0-100)", type: "number" },
-    ],
+  Gallery: {
+    render: () => renderGallery(),
+    title: "Tambah Gambar Galeri",
+    // A caption is nice to have but shouldn't block adding the photo — the
+    // placeholder image gets swapped for a real one afterward via its own
+    // "Tukar gambar" button, same flow as Hero Slides.
+    fields: () => [{ key: "caption", label: "Kapsyen (pilihan)", type: "text" }],
     buildRow: (v) => ({
-      id: "w_" + Date.now(),
-      name: v.name,
-      qty: v.qty,
-      progress: Number(v.progress) || 0,
-      image: `https://picsum.photos/seed/wish${Date.now()}/400/300`,
-      donated: false,
+      id: "gallery_" + Date.now(),
+      image: `https://picsum.photos/seed/gallery${Date.now()}/700/700`,
+      caption: v.caption || "",
     }),
-    demoAdd: (row) => MOCK.wishlist.push(row),
-    demoDelete: (id) => { MOCK.wishlist = MOCK.wishlist.filter((x) => String(x.id) !== String(id)); },
+    demoAdd: (row) => MOCK.gallery.push(row),
+    demoDelete: (id) => { MOCK.gallery = MOCK.gallery.filter((x) => String(x.id) !== String(id)); },
     demoUploadImage: (id, url) => {
-      const w = MOCK.wishlist.find((x) => String(x.id) === String(id));
-      if (w) w.image = url;
+      const g = MOCK.gallery.find((x) => String(x.id) === String(id));
+      if (g) g.image = url;
     },
   },
 };
@@ -1366,8 +1362,8 @@ function wireInlineEditing(container = document) {
 
 let SETTINGS = {};
 
-const NAV_SECTIONS = ["home", "pustaka", "elibrary", "leaderboard", "carta", "kalendar", "wakaf"];
-const PAGE_DESC_SECTIONS = ["pustaka", "elibrary", "leaderboard", "carta", "kalendar", "wakaf"];
+const NAV_SECTIONS = ["home", "pustaka", "elibrary", "leaderboard", "carta", "kalendar", "galeri"];
+const PAGE_DESC_SECTIONS = ["pustaka", "elibrary", "leaderboard", "carta", "kalendar", "galeri"];
 
 async function renderSettings() {
   const fetched = await fetchSheet("Settings", MOCK.settings);
@@ -2271,65 +2267,101 @@ async function renderKalendar() {
 }
 
 // ==========================================================================
-// RENDER: WAKAF & SUMBANGAN (WISHLIST)
+// RENDER: GALERI FOTO (iOS Photos-style showcase gallery)
 // ==========================================================================
 
-async function renderWakaf() {
-  let wishlist = await fetchSheet("Wishlist", MOCK.wishlist);
-  wishlist = applySavedOrder(wishlist, "wishlist");
-  const grid = document.getElementById("wishlistGrid");
+let galleryData = [];
+
+async function renderGallery() {
+  galleryData = await fetchSheet("Gallery", MOCK.gallery);
+  galleryData = applySavedOrder(galleryData, "gallery");
+  const grid = document.getElementById("galleryGrid");
 
   grid.innerHTML =
-    wishlist
+    galleryData
       .map(
-        (w) => `
-    <div class="glass-card wish-card ${w.donated ? "donated" : ""}" data-wish-id="${w.id}">
-      ${deleteBtnHTML("Wishlist", w.id)}
-      <div class="wish-img">
-        <img src="${w.image}" alt="${w.name}" loading="lazy">
-        ${imgEditBtnHTML("Wishlist", w.id, "image", "Tukar gambar item")}
-      </div>
-      <h3>${w.name}</h3>
-      <div class="wish-meta"><span class="wish-qty">${w.qty}</span></div>
-      <div class="wish-progress"><div class="wish-progress-bar" style="width:0%" data-target="${w.progress}"></div></div>
-      <button class="btn ${w.donated ? "btn-ghost" : "btn-primary"} wish-donate-btn" data-wish-id="${w.id}" ${w.donated ? "disabled" : ""}>
-        ${w.donated ? `${icon("checkCircle")} Terima Kasih!` : `${icon("gift")} Sumbang Item Ini`}
-      </button>
+        (g, i) => `
+    <div class="gallery-item" data-gallery-id="${g.id}" data-index="${i}">
+      <img src="${g.image}" alt="${g.caption || "Galeri"}" loading="lazy">
+      ${g.caption ? `<div class="gallery-item-caption">${g.caption}</div>` : ""}
+      ${deleteBtnHTML("Gallery", g.id)}
+      ${imgEditBtnHTML("Gallery", g.id, "image", "Tukar gambar")}
     </div>`
       )
-      .join("") + addTileHTML("Wishlist", "Tambah Item");
+      .join("") + addTileHTML("Gallery", "Tambah Gambar");
 
-  grid.querySelectorAll(".wish-donate-btn").forEach((btn) => {
-    btn.addEventListener("click", () => donateItem(btn.dataset.wishId, btn));
-  });
-  makeSortable(grid, "wishlist", ".wish-card", "wishId", "grid");
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      grid.querySelectorAll(".wish-progress-bar[data-target]").forEach((bar) => {
-        bar.style.width = bar.dataset.target + "%";
-      });
+  grid.querySelectorAll(".gallery-item").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      if (e.target.closest(".item-delete-btn, .img-edit-trigger")) return;
+      openGalleryLightbox(Number(item.dataset.index));
     });
   });
+
+  makeSortable(grid, "gallery", ".gallery-item", "galleryId", "grid");
 }
 
-async function donateItem(wishId, btn) {
-  btn.disabled = true;
-  btn.innerHTML = `${icon("spinner")} Memproses...`;
+let galleryLightboxIndex = 0;
 
-  const result = await postToSheet({ action: "donate", sheet: "Wishlist", itemId: wishId });
+/** Opens the full-screen iOS Photos-style viewer at galleryData[index],
+ *  wiring prev/next/close/delete + a live-editable caption (admin mode). */
+function openGalleryLightbox(index) {
+  if (!galleryData.length) return;
+  galleryLightboxIndex = ((index % galleryData.length) + galleryData.length) % galleryData.length;
 
-  if (result.status === "ok" || result.demo) {
-    btn.innerHTML = `${icon("checkCircle")} Terima Kasih!`;
-    btn.classList.remove("btn-primary");
-    btn.classList.add("btn-ghost");
-    btn.closest(".wish-card").classList.add("donated");
-    showToast("Terima kasih atas sumbangan anda! Pihak PSS akan menghubungi anda.");
-  } else {
-    btn.disabled = false;
-    btn.innerHTML = `${icon("gift")} Sumbang Item Ini`;
-    showToast("Gagal menghantar sumbangan. Cuba lagi.", "error");
-  }
+  const lightbox = document.getElementById("galleryLightbox");
+  const img = document.getElementById("galleryLightboxImg");
+  const caption = document.getElementById("galleryLightboxCaption");
+  const deleteBtn = document.getElementById("galleryLightboxDelete");
+  const prevBtn = document.getElementById("galleryLightboxPrev");
+  const nextBtn = document.getElementById("galleryLightboxNext");
+
+  const item = galleryData[galleryLightboxIndex];
+  img.src = item.image;
+  img.alt = item.caption || "Galeri";
+  caption.textContent = item.caption || "";
+  caption.dataset.sheet = "Gallery";
+  caption.dataset.row = item.id;
+  caption.dataset.col = "caption";
+  caption.setAttribute("contenteditable", document.body.classList.contains("admin-mode") ? "true" : "false");
+  wireInlineEditing(document); // idempotent — safe to call again, see dataset.wired guard
+
+  deleteBtn.dataset.sheet = "Gallery";
+  deleteBtn.dataset.id = item.id;
+
+  const single = galleryData.length <= 1;
+  prevBtn.hidden = single;
+  nextBtn.hidden = single;
+
+  lightbox.classList.add("show");
+}
+
+function closeGalleryLightbox() {
+  document.getElementById("galleryLightbox").classList.remove("show");
+}
+
+function initGalleryLightbox() {
+  document.getElementById("galleryLightboxClose").addEventListener("click", closeGalleryLightbox);
+  document.getElementById("galleryLightboxPrev").addEventListener("click", () => openGalleryLightbox(galleryLightboxIndex - 1));
+  document.getElementById("galleryLightboxNext").addEventListener("click", () => openGalleryLightbox(galleryLightboxIndex + 1));
+
+  document.getElementById("galleryLightbox").addEventListener("click", (e) => {
+    if (e.target.id === "galleryLightbox") closeGalleryLightbox();
+  });
+
+  document.getElementById("galleryLightboxDelete").addEventListener("click", async (e) => {
+    const { sheet, id } = e.currentTarget.dataset;
+    await handleDeleteClick(sheet, id); // re-renders the grid via CRUD.Gallery.render()
+    closeGalleryLightbox();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const lightbox = document.getElementById("galleryLightbox");
+    if (!lightbox.classList.contains("show")) return;
+    if (document.activeElement === document.getElementById("galleryLightboxCaption")) return; // typing a caption
+    if (e.key === "Escape") closeGalleryLightbox();
+    else if (e.key === "ArrowLeft") openGalleryLightbox(galleryLightboxIndex - 1);
+    else if (e.key === "ArrowRight") openGalleryLightbox(galleryLightboxIndex + 1);
+  });
 }
 
 // ==========================================================================
@@ -2348,6 +2380,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initHeroSpotlight();
   initThemeModeToggle();
   initButtonRipple();
+  initGalleryLightbox();
 
   if (!USING_LIVE_BACKEND()) {
     console.info(
@@ -2369,7 +2402,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderLeaderboard(),
     renderCarta(),
     renderKalendar(),
-    renderWakaf(),
+    renderGallery(),
   ]);
   const safetyTimeout = new Promise((resolve) => setTimeout(resolve, 8000));
 

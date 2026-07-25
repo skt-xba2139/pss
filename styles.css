@@ -1306,26 +1306,176 @@ a { text-decoration: none; color: inherit; }
 .event-card-actions .btn { flex: 1; justify-content: center; padding: 9px; font-size: 12.5px; }
 
 /* ==========================================================================
-   WAKAF & SUMBANGAN (WISHLIST)
+   GALERI FOTO — iOS Photos-style showcase grid + full-screen lightbox
    ========================================================================== */
 
-.wishlist-grid {
-  perspective: 1000px;
+.gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-panel-2);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--ease);
+}
+.gallery-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+  z-index: 2;
+}
+.gallery-item:hover img { transform: scale(1.08); }
+
+.gallery-item-caption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 16px 10px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gallery-item:hover .gallery-item-caption { opacity: 1; transform: translateY(0); }
+
+.gallery-grid .add-tile {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+}
+.gallery-grid .add-tile .icon { width: 22px; height: 22px; }
+.gallery-grid .add-tile span { font-size: 11px; }
+
+/* ---------- full-screen lightbox viewer (always dark, both themes — same
+   reasoning as the hero/book-modal photo scrims: legible over any photo) ---------- */
+.gallery-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  background: rgba(8,8,10,0.94);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  align-items: center;
+  justify-content: center;
+}
+.gallery-lightbox.show { display: flex; animation: fadeIn 0.25s var(--ease); }
+
+.gallery-lightbox-stage { max-width: 90vw; max-height: 78vh; }
+.gallery-lightbox-stage img {
+  display: block;
+  max-width: 90vw;
+  max-height: 78vh;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+  animation: modal-pop 0.32s var(--ease);
 }
 
-.wish-card { display: flex; flex-direction: column; }
-.wish-img { height: 140px; border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 14px; }
-.wish-img img { width: 100%; height: 100%; object-fit: cover; }
-.wish-card h3 { font-size: 15px; margin-bottom: 6px; }
-.wish-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.wish-qty { font-size: 12px; color: var(--text-muted); }
-.wish-progress { height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
-.wish-progress-bar { height: 100%; background: linear-gradient(90deg, var(--green), #27ae60); box-shadow: 0 0 10px rgba(46, 204, 113, 0.6); }
-.wish-card .btn { width: 100%; justify-content: center; margin-top: auto; }
-.wish-card.donated .wish-img { filter: grayscale(0.4); }
+.gallery-lightbox-close,
+.gallery-lightbox-nav {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease);
+}
+.gallery-lightbox-close:hover,
+.gallery-lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+
+.gallery-lightbox-close {
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+}
+.gallery-lightbox-close:hover { transform: rotate(90deg); }
+.gallery-lightbox-close .icon { width: 18px; height: 18px; }
+
+.gallery-lightbox-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+}
+.gallery-lightbox-nav:hover { transform: translateY(-50%) scale(1.08); }
+.gallery-lightbox-nav .icon { width: 22px; height: 22px; }
+.gallery-lightbox-prev { left: 20px; }
+.gallery-lightbox-next { right: 20px; }
+.gallery-lightbox-nav[hidden] { display: none; }
+
+.gallery-lightbox-footer {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 80vw;
+}
+.gallery-lightbox-caption {
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(14px);
+  padding: 9px 18px;
+  border-radius: 999px;
+  min-width: 8px;
+  min-height: 1em;
+  max-width: 60vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gallery-lightbox-caption:empty { padding: 0; min-width: 0; background: none; }
+.admin-mode .gallery-lightbox-caption {
+  outline: 1px dashed rgba(245,197,24,0.5);
+  outline-offset: 4px;
+  cursor: text;
+  padding: 9px 18px; /* keep editable even when caption is empty in admin mode */
+  background: rgba(255,255,255,0.1);
+}
+.gallery-lightbox-delete.item-delete-btn {
+  position: static;
+  display: none;
+  width: 40px;
+  height: 40px;
+}
+.admin-mode .gallery-lightbox-delete.item-delete-btn { display: flex; }
+
+@media (max-width: 860px) {
+  .gallery-lightbox-nav { width: 42px; height: 42px; }
+  .gallery-lightbox-nav .icon { width: 18px; height: 18px; }
+  .gallery-lightbox-prev { left: 8px; }
+  .gallery-lightbox-next { right: 8px; }
+  .gallery-lightbox-close { top: 14px; right: 14px; }
+}
 
 /* ==========================================================================
    MODALS
@@ -1527,7 +1677,6 @@ a { text-decoration: none; color: inherit; }
 .podium-item,
 .lb-row,
 .marquee-item,
-.wish-img,
 .event-card-img {
   position: relative;
 }
@@ -2174,7 +2323,7 @@ body {
 .book-card,
 .elib-card,
 .event-card,
-.wish-card,
+.gallery-item,
 .lb-row,
 .podium-item,
 .org-card,
@@ -2195,10 +2344,11 @@ body {
 .event-grid .event-card:nth-child(2) { animation-delay: 70ms; }
 .event-grid .event-card:nth-child(3) { animation-delay: 140ms; }
 .event-grid .event-card:nth-child(n+4) { animation-delay: 200ms; }
-.wishlist-grid .wish-card:nth-child(1) { animation-delay: 0ms; }
-.wishlist-grid .wish-card:nth-child(2) { animation-delay: 60ms; }
-.wishlist-grid .wish-card:nth-child(3) { animation-delay: 120ms; }
-.wishlist-grid .wish-card:nth-child(n+4) { animation-delay: 180ms; }
+.gallery-grid .gallery-item:nth-child(1) { animation-delay: 0ms; }
+.gallery-grid .gallery-item:nth-child(2) { animation-delay: 30ms; }
+.gallery-grid .gallery-item:nth-child(3) { animation-delay: 60ms; }
+.gallery-grid .gallery-item:nth-child(4) { animation-delay: 90ms; }
+.gallery-grid .gallery-item:nth-child(n+5) { animation-delay: 120ms; }
 .leaderboard-list .lb-row:nth-child(1) { animation-delay: 0ms; }
 .leaderboard-list .lb-row:nth-child(2) { animation-delay: 40ms; }
 .leaderboard-list .lb-row:nth-child(3) { animation-delay: 80ms; }
@@ -2237,22 +2387,6 @@ body {
   background: var(--gold);
   box-shadow: 0 0 8px 2px rgba(245,197,24,0.7);
   animation: twinkle 2.2s ease-in-out infinite;
-}
-
-/* ---------- wishlist progress: subtle moving shimmer ---------- */
-@keyframes progress-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
-}
-.wish-progress { position: relative; }
-.wish-progress-bar { position: relative; overflow: hidden; }
-.wish-progress-bar::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 40%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
-  animation: progress-shimmer 2.4s ease-in-out infinite;
 }
 
 /* ---------- event date badge: brand glow ring ---------- */
@@ -2312,7 +2446,6 @@ body {
 .glass-card,
 .elib-card,
 .event-card,
-.wish-card,
 .org-card,
 .podium-item {
   background:
@@ -2323,7 +2456,6 @@ body {
 .glass-card:hover,
 .elib-card:hover,
 .event-card:hover,
-.wish-card:hover,
 .org-card:hover,
 .podium-item:hover {
   background:
@@ -2392,10 +2524,9 @@ body {
 }
 .page { animation: page-enter 0.55s var(--ease); }
 
-/* ---------- progress bars: grow into place instead of snapping to width
+/* ---------- progress bar: grows into place instead of snapping to width
    (JS sets width:0 initially, then flips to the target on next frame) ---------- */
-.lb-bar,
-.wish-progress-bar {
+.lb-bar {
   transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
