@@ -10,6 +10,17 @@
 </head>
 <body>
 
+<!-- ===================== INITIAL LOAD OVERLAY ===================== -->
+<!-- Hides all content (including the static placeholder text below) until
+     every section has finished fetching real data from Google Sheets, so
+     visitors never see stale/placeholder content flash before the real
+     data arrives. Removed by script.js once all renders resolve. -->
+<div class="app-loading-overlay" id="appLoadingOverlay">
+  <div class="app-loading-mark">PSS<span>.</span></div>
+  <div class="app-loading-spinner"></div>
+  <div class="app-loading-text">Memuatkan data...</div>
+</div>
+
 <!-- ===================== MOBILE TOPBAR ===================== -->
 <header class="mobile-topbar">
   <button id="hamburgerBtn" class="hamburger-btn" aria-label="Buka menu">
@@ -39,6 +50,10 @@
       <label for="accentColorInput">Warna Tema</label>
       <input type="color" id="accentColorInput" value="#e50914" title="Tukar warna aksen keseluruhan dashboard">
       <button type="button" id="accentColorReset" title="Set semula ke warna asal">Set Semula</button>
+      <button type="button" id="openCssModalBtn" title="Edit CSS tersuai untuk keseluruhan dashboard">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m13 6-2 12"/></svg>
+        CSS Tersuai
+      </button>
     </div>
   </div>
 </div>
@@ -48,31 +63,32 @@
   <!-- ===================== SIDEBAR ===================== -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="brand-mark">PSS<span>.</span></div>
-      <div class="brand-sub">Pusat Sumber Sekolah</div>
+      <div class="brand-line brand-line-1" contenteditable="false" data-editable="brand-line1" data-setting-key="brand_line1">Pusat Sumber Ibnu Sina</div>
+      <div class="brand-line brand-line-2" contenteditable="false" data-editable="brand-line2" data-setting-key="brand_line2">SK Tangkungon Telupid</div>
+      <div class="brand-line brand-line-3" contenteditable="false" data-editable="brand-line3" data-setting-key="brand_line3">XBA 2139</div>
     </div>
 
     <nav class="sidebar-nav">
       <a href="#" class="nav-item active" data-section="home">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label">Utama / Buletin</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-home-label" data-setting-key="nav_home_label">Utama / Buletin</span><button type="button" class="nav-icon-edit-btn" data-section="home" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="pustaka">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2-1 5-1 7 .5v13c-2-1.5-5-1.5-7-.5z"/><path d="M21 5.5c-2-1-5-1-7 .5v13c2-1.5 5-1.5 7-.5z"/></svg></span><span class="nav-label">Pustaka Interaktif</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c2-1 5-1 7 .5v13c-2-1.5-5-1.5-7-.5z"/><path d="M21 5.5c-2-1-5-1-7 .5v13c2-1.5 5-1.5 7-.5z"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-pustaka-label" data-setting-key="nav_pustaka_label">Pustaka Interaktif</span><button type="button" class="nav-icon-edit-btn" data-section="pustaka" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="elibrary">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="1.6"/><rect x="3" y="13" width="18" height="7" rx="1.6"/><circle cx="7" cy="7.5" r=".6" fill="currentColor" stroke="none"/><circle cx="7" cy="16.5" r=".6" fill="currentColor" stroke="none"/></svg></span><span class="nav-label">E-Library</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="1.6"/><rect x="3" y="13" width="18" height="7" rx="1.6"/><circle cx="7" cy="7.5" r=".6" fill="currentColor" stroke="none"/><circle cx="7" cy="16.5" r=".6" fill="currentColor" stroke="none"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-elibrary-label" data-setting-key="nav_elibrary_label">E-Library</span><button type="button" class="nav-icon-edit-btn" data-section="elibrary" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="leaderboard">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5H5a3 3 0 0 0 3 4"/><path d="M16 5h3a3 3 0 0 1-3 4"/><path d="M12 13v3"/><path d="M9 20h6"/><path d="M10 16h4l.6 4H9.4z"/></svg></span><span class="nav-label">Papan Pendahulu</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5H5a3 3 0 0 0 3 4"/><path d="M16 5h3a3 3 0 0 1-3 4"/><path d="M12 13v3"/><path d="M9 20h6"/><path d="M10 16h4l.6 4H9.4z"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-leaderboard-label" data-setting-key="nav_leaderboard_label">Papan Pendahulu</span><button type="button" class="nav-icon-edit-btn" data-section="leaderboard" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="carta">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v5m0 0-6 5m6-5 6 5"/></svg></span><span class="nav-label">Carta Organisasi</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v5m0 0-6 5m6-5 6 5"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-carta-label" data-setting-key="nav_carta_label">Carta Organisasi</span><button type="button" class="nav-icon-edit-btn" data-section="carta" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="kalendar">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg></span><span class="nav-label">Kalendar Acara</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17"/><path d="M8 3v4M16 3v4"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-kalendar-label" data-setting-key="nav_kalendar_label">Kalendar Acara</span><button type="button" class="nav-icon-edit-btn" data-section="kalendar" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
       <a href="#" class="nav-item" data-section="wakaf">
-        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="4" rx="1"/><rect x="5" y="13" width="14" height="8" rx="1"/><path d="M12 9v12"/><path d="M12 9C9 9 8 7.3 8 6a2 2 0 0 1 4 0 2 2 0 0 1 4 0c0 1.3-1 3-4 3Z"/></svg></span><span class="nav-label">Wakaf &amp; Sumbangan</span>
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="17" height="4" rx="1"/><rect x="5" y="13" width="14" height="8" rx="1"/><path d="M12 9v12"/><path d="M12 9C9 9 8 7.3 8 6a2 2 0 0 1 4 0 2 2 0 0 1 4 0c0 1.3-1 3-4 3Z"/></svg></span><span class="nav-label" contenteditable="false" data-editable="nav-wakaf-label" data-setting-key="nav_wakaf_label">Wakaf &amp; Sumbangan</span><button type="button" class="nav-icon-edit-btn" data-section="wakaf" title="Tukar ikon (emoji)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19.5 8.5a2 2 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5 17.5 10.5"/></svg></button>
       </a>
     </nav>
 
@@ -162,7 +178,7 @@
       <div class="page-header page-header-row">
         <div>
           <h1>Pustaka Interaktif</h1>
-          <p>Terokai koleksi buku popular pilihan Pusat Sumber Sekolah</p>
+          <p contenteditable="false" data-editable="page-pustaka-desc" data-setting-key="page_pustaka_desc">Terokai koleksi buku popular pilihan Pusat Sumber Sekolah</p>
         </div>
         <button type="button" class="add-tile add-tile--inline" data-sheet="Books">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -177,7 +193,7 @@
     <section class="page" id="page-elibrary">
       <div class="page-header">
         <h1>E-Library (Bahan Digital)</h1>
-        <p>Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran</p>
+        <p contenteditable="false" data-editable="page-elibrary-desc" data-setting-key="page_elibrary_desc">Muat turun kertas peperiksaan lepas, nota digital dan pautan pembelajaran</p>
       </div>
 
       <div class="filter-bar">
@@ -194,7 +210,7 @@
     <section class="page" id="page-leaderboard">
       <div class="page-header">
         <h1>Papan Pendahulu</h1>
-        <p>Top 10 Pembaca Teraktif Pusat Sumber Sekolah</p>
+        <p contenteditable="false" data-editable="page-leaderboard-desc" data-setting-key="page_leaderboard_desc">Top 10 Pembaca Teraktif Pusat Sumber Sekolah</p>
       </div>
 
       <div class="leaderboard-podium" id="leaderboardPodium"></div>
@@ -205,7 +221,7 @@
     <section class="page" id="page-carta">
       <div class="page-header">
         <h1>Carta Organisasi</h1>
-        <p>Jawatankuasa Pusat Sumber Sekolah</p>
+        <p contenteditable="false" data-editable="page-carta-desc" data-setting-key="page_carta_desc">Jawatankuasa Pusat Sumber Sekolah</p>
       </div>
 
       <div class="org-chart" id="orgChart"></div>
@@ -215,7 +231,7 @@
     <section class="page" id="page-kalendar">
       <div class="page-header">
         <h1>Kalendar Acara</h1>
-        <p>Aktiviti akan datang, borang pendaftaran &amp; peraturan</p>
+        <p contenteditable="false" data-editable="page-kalendar-desc" data-setting-key="page_kalendar_desc">Aktiviti akan datang, borang pendaftaran &amp; peraturan</p>
       </div>
 
       <div class="event-grid" id="eventGrid"></div>
@@ -225,7 +241,7 @@
     <section class="page" id="page-wakaf">
       <div class="page-header">
         <h1>Wakaf &amp; Sumbangan</h1>
-        <p>Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber</p>
+        <p contenteditable="false" data-editable="page-wakaf-desc" data-setting-key="page_wakaf_desc">Wishlist PSS — bantu kami lengkapkan keperluan pusat sumber</p>
       </div>
 
       <div class="wishlist-grid" id="wishlistGrid"></div>
@@ -266,6 +282,22 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="formModalCancel">Batal</button>
       <button class="btn btn-primary" id="formModalSubmit">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOM CSS MODAL (Admin Mode) ===================== -->
+<div class="modal-overlay" id="cssModal">
+  <div class="modal-box modal-box-wide">
+    <h3>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m13 6-2 12"/></svg>
+      CSS Tersuai
+    </h3>
+    <p>Tulis CSS anda sendiri di sini untuk mengubah suai reka bentuk mana-mana bahagian dashboard. Ia akan terpakai serta-merta dan disimpan untuk semua pelawat.</p>
+    <textarea id="cssModalTextarea" class="css-textarea" rows="14" spellcheck="false" placeholder=".hero-title { color: #ffd700; }"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cssModalCancel">Batal</button>
+      <button class="btn btn-primary" id="cssModalSave">Simpan &amp; Terapkan</button>
     </div>
   </div>
 </div>
