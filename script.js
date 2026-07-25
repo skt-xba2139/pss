@@ -544,6 +544,52 @@ function handleAddTileClick(el) {
   });
 }
 
+// ==========================================================================
+// PREMIUM MICRO-INTERACTIONS — 3D cursor-tilt on cards and a cursor-following
+// spotlight on the hero banner. Both are delegated on document so they keep
+// working after any re-render (grids get replaced via innerHTML constantly).
+// ==========================================================================
+
+function initTiltEffect() {
+  const TILT_SELECTOR = ".book-card, .glass-card";
+  const MAX_DEG = 7;
+  let activeCard = null;
+
+  const resetCard = (card) => {
+    card.style.setProperty("--tilt-x", "0deg");
+    card.style.setProperty("--tilt-y", "0deg");
+  };
+
+  document.addEventListener("mousemove", (e) => {
+    const card = e.target.closest(TILT_SELECTOR);
+
+    if (card !== activeCard) {
+      if (activeCard) resetCard(activeCard);
+      activeCard = card;
+    }
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.setProperty("--tilt-x", (px * MAX_DEG * 2).toFixed(2) + "deg");
+    card.style.setProperty("--tilt-y", (-py * MAX_DEG * 2).toFixed(2) + "deg");
+  });
+}
+
+function initHeroSpotlight() {
+  const hero = document.getElementById("heroBanner");
+  if (!hero) return;
+
+  hero.addEventListener("mousemove", (e) => {
+    const rect = hero.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    hero.style.setProperty("--spot-x", x + "%");
+    hero.style.setProperty("--spot-y", y + "%");
+  });
+}
+
 /** Wires the single reusable file input + one delegated click listener that
  *  powers every add / delete / image-upload / link-edit control on the page,
  *  regardless of when their markup was rendered (re-render-proof). */
@@ -1390,6 +1436,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initAdminCRUD();
   initThemeCustomizer();
   initCustomCssModal();
+  initTiltEffect();
+  initHeroSpotlight();
 
   if (!USING_LIVE_BACKEND()) {
     console.info(
