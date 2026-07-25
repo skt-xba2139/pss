@@ -918,6 +918,12 @@ function setAdminMode(on) {
     el.setAttribute("contenteditable", on ? "true" : "false");
   });
 
+  // The Home marquee renders as a single (editable) copy in admin mode but
+  // a duplicated, animated copy for visitors (see renderHome) — re-render
+  // it now so flipping admin mode mid-session switches immediately instead
+  // of only taking effect on the next full page load.
+  if (document.getElementById("marqueeTrack")) renderHome();
+
   if (!on) showToast("Mod Admin dimatikan.", "success");
 }
 
@@ -1445,7 +1451,15 @@ async function renderHome() {
     heroDeleteWrap.innerHTML = `<button type="button" class="hero-delete-btn item-delete-btn" data-sheet="Announcements" data-id="${hero.id}" title="Padam pengumuman ini">${icon("trash")} Padam</button>`;
   }
 
-  // Marquee — duplicate items for a seamless infinite loop
+  // Marquee — duplicate items for a seamless infinite loop (the CSS
+  // animation slides the track by exactly -50%, so it only loops seamlessly
+  // when the track holds two back-to-back copies). But every duplicated
+  // item carries its own live delete/upload buttons with the same
+  // data-id, so in admin mode this reads as "I added one photo and two
+  // appeared" — every activity has always shown twice, admin only notices
+  // it the moment they add or upload one. Render a single editable copy
+  // (no animation) while admin mode is on, and only duplicate + animate for
+  // regular visitors.
   const track = document.getElementById("marqueeTrack");
   const buildItems = (list) =>
     list
@@ -1459,7 +1473,9 @@ async function renderHome() {
       </div>`
       )
       .join("");
-  track.innerHTML = buildItems(marqueeItems) + buildItems(marqueeItems);
+  track.innerHTML = document.body.classList.contains("admin-mode")
+    ? buildItems(marqueeItems)
+    : buildItems(marqueeItems) + buildItems(marqueeItems);
 
   // Remaining announcements grid (skip the hero one) — reordering here only
   // ever affects this grid's own display order, never which one is hero.

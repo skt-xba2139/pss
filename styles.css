@@ -769,6 +769,13 @@ a { text-decoration: none; color: inherit; }
 
 .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
 
+/* admin mode renders a single (non-duplicated) copy of the activities so
+   delete/upload controls aren't shown twice per item — sliding a lone
+   copy by the usual -50% would just cut it in half, so stop the
+   animation entirely and let admin scroll through it normally instead. */
+.admin-mode .marquee-track { animation: none; transform: none; }
+.admin-mode .marquee-wrap { overflow-x: auto; }
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
