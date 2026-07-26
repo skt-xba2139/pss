@@ -9,18 +9,22 @@
  *
  * Expected Google Sheet tabs (create these exact sheet/tab names):
  *   Announcements | Activities | Books | ELibrary | Leaderboard |
- *   Committee | Events | Wishlist
+ *   Committee | Events | Gallery
  *
  * Suggested columns per tab (row 1 = header):
  *
  * Announcements: id | title | description | image | date
  * Activities:    id | img | caption
  * Books:         id | category | title | synopsis | cover | reserved (count)
- * ELibrary:      id | title | type | meta | link
+ * ELibrary:      id | title | type | meta | link | icon (optional) | buttonLabel (optional)
  * Leaderboard:   id | name | kelas | score
  * Committee:     editKey | tier | name | role | avatar
  * Events:        id | day | month | title | desc | image | rulesLink | registerLink
- * Wishlist:      id | name | qty | progress | image | donated (TRUE/FALSE)
+ * Gallery:       id | image | caption
+ *
+ * "Wishlist" (Wakaf & Sumbangan) was replaced by "Galeri Foto" — its sheet
+ * and backend handlers (handleDonate, the "donate" action) are left intact
+ * for backward compatibility but are no longer used by the frontend.
  *
  * If you already ran setupDashboardSheets() before "id"/rulesLink/registerLink
  * were added to this file, run upgradeDashboardSheets() once — it patches
@@ -45,6 +49,7 @@ const SHEET_NAMES = {
   Wishlist: "Wishlist",
   Settings: "Settings",
   HeroSlides: "HeroSlides",
+  Gallery: "Gallery",
 };
 
 /**
@@ -144,8 +149,15 @@ function handleUpdate(payload) {
   if (!sheet) return { status: "error", error: "Sheet tidak dijumpai: " + payload.sheet };
 
   const headers = getHeaders(sheet);
-  const colIndex = findColumnIndex(headers, payload.column);
-  if (colIndex === -1) return { status: "error", error: "Lajur tidak dijumpai: " + payload.column };
+  let colIndex = findColumnIndex(headers, payload.column);
+  if (colIndex === -1) {
+    // Self-heal: a brand-new per-item editable field (e.g. a custom button
+    // label or icon choice added to the frontend after this sheet was first
+    // set up) shouldn't hard-fail just because the column doesn't exist yet
+    // — auto-add it, same approach already used by handleUploadImage.
+    colIndex = headers.length;
+    sheet.getRange(1, colIndex + 1).setValue(payload.column);
+  }
 
   const rowIndex = findRowIndex(sheet, headers, payload.row);
   if (rowIndex === -1) return { status: "error", error: "Baris tidak dijumpai: " + payload.row };
@@ -399,6 +411,26 @@ function getOrCreateHeroSlidesSheet() {
   return sheet;
 }
 
+/** Returns the Gallery sheet, creating + seeding it with sample photos if it
+ *  doesn't exist yet (self-heals for dashboards set up before the Galeri
+ *  Foto feature existed — addRow/deleteRow/uploadImage/update already work
+ *  on any sheet generically, this just guarantees the sheet is there). */
+function getOrCreateGallerySheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAMES.Gallery);
+  if (sheet) return sheet;
+
+  sheet = ss.insertSheet(SHEET_NAMES.Gallery);
+  sheet.getRange(1, 1, 1, 3).setValues([["id", "image", "caption"]]).setFontWeight("bold");
+  sheet.getRange(2, 1, 3, 3).setValues([
+    ["gallery1", "https://picsum.photos/seed/gallery1/700/700", ""],
+    ["gallery2", "https://picsum.photos/seed/gallery2/700/700", ""],
+    ["gallery3", "https://picsum.photos/seed/gallery3/700/700", ""],
+  ]);
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
 /** Reads Settings as a flat {key: value} object, filling in any key that's
  *  missing from the sheet (e.g. a newly-added setting) with its default. */
 function getSettingsMap() {
@@ -567,6 +599,15 @@ function setupDashboardSheets() {
         ["hero3", "https://picsum.photos/seed/psshero3/1600/700"],
       ],
     },
+    {
+      name: SHEET_NAMES.Gallery,
+      headers: ["id", "image", "caption"],
+      rows: [
+        ["gallery1", "https://picsum.photos/seed/gallery1/700/700", ""],
+        ["gallery2", "https://picsum.photos/seed/gallery2/700/700", ""],
+        ["gallery3", "https://picsum.photos/seed/gallery3/700/700", ""],
+      ],
+    },
   ];
 
   sheetDefs.forEach((def) => {
@@ -615,6 +656,7 @@ function upgradeDashboardSheets() {
   addColumnsIfMissing(SHEET_NAMES.Events, ["rulesLink", "registerLink"]);
   getOrCreateSettingsSheet(); // creates + seeds "Settings" if it doesn't exist yet
   getOrCreateHeroSlidesSheet(); // creates + seeds "HeroSlides" if it doesn't exist yet
+  getOrCreateGallerySheet(); // creates + seeds "Gallery" if it doesn't exist yet
   Logger.log("Upgrade selesai.");
 }
 
@@ -661,6 +703,7 @@ function getSheet(name) {
   // "upgradeDashboardSheets" run required first.
   if (name === SHEET_NAMES.Settings) return getOrCreateSettingsSheet();
   if (name === SHEET_NAMES.HeroSlides) return getOrCreateHeroSlidesSheet();
+  if (name === SHEET_NAMES.Gallery) return getOrCreateGallerySheet();
   return null;
 }
 
