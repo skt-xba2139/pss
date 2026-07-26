@@ -47,10 +47,14 @@
   </div>
 
   <div class="app-loading-mark">
-    <span class="app-loading-mark-cycle" id="appLoadingMarkCycle">Perpustakaan Ibnu Sina</span>
-    <span class="app-loading-mark-underline" id="appLoadingMarkUnderline"></span>
+    <!-- overflow:hidden clip for the scoreboard-style vertical roll (JS:
+         initLoadingTaglineCycle) — the span itself slides within this box -->
+    <span class="app-loading-mark-cycle-wrap">
+      <span class="app-loading-mark-cycle" id="appLoadingMarkCycle">Perpustakaan Ibnu Sina</span>
+    </span>
     <span class="app-loading-mark-line-2">SK Tangkungon Telupid</span>
   </div>
+  <div class="app-loading-bar"></div>
   <div class="app-loading-text">Memuatkan data...</div>
 </div>
 

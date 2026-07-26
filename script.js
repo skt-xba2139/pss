@@ -1102,15 +1102,17 @@ function setAdminMode(on) {
 // LOADING OVERLAY — bilingual cycling tagline, Apple-startup style.
 // ==========================================================================
 
-const LOADING_TAGLINES = ["Perpustakaan Ibnu Sina", "Ibnu Sina Library", "We Learn, We Care, We Protect"];
+const LOADING_TAGLINES = ["Perpustakaan Ibnu Sina", "We Learn, We Care, We Protect", "© Cikgu Rizwan Yusop"];
 
-/** Cross-fades the loading overlay's main line through LOADING_TAGLINES for
- *  as long as the overlay is visible, then stops itself the moment
- *  appLoadingOverlay gets its "hidden" class (no point animating text
- *  nobody can see, and it would otherwise run forever in the background).
- *  Paired with MIN_LOADING_MS below (in the DOMContentLoaded handler) —
- *  without a minimum display time, a fast demo-data load could hide the
- *  overlay before this ever gets to cycle even once. */
+/** Rolls the loading overlay's main line through LOADING_TAGLINES like a
+ *  split-flap scoreboard — each phrase slides straight up and out, the next
+ *  one slides up from below into place — for as long as the overlay is
+ *  visible, then stops itself the moment appLoadingOverlay gets its
+ *  "hidden" class (no point animating text nobody can see, and it would
+ *  otherwise run forever in the background). Paired with MIN_LOADING_MS
+ *  below (in the DOMContentLoaded handler) — without a minimum display
+ *  time, a fast demo-data load could hide the overlay before this ever
+ *  gets to cycle even once. */
 function initLoadingTaglineCycle() {
   const el = document.getElementById("appLoadingMarkCycle");
   const overlay = document.getElementById("appLoadingOverlay");
@@ -1122,17 +1124,20 @@ function initLoadingTaglineCycle() {
   el.dataset.cycling = "true";
 
   const HOLD_MS = 2200; // how long each phrase stays fully readable
-  const FADE_MS = 550;  // must match .app-loading-mark-cycle's CSS transition duration
+  const ROLL_MS = 480;  // must match .app-loading-mark-cycle's CSS transition duration
 
   let i = 0;
   const timer = setInterval(() => {
-    el.classList.add("fade-out");
+    el.classList.add("roll-out"); // slide the current phrase up and out
     setTimeout(() => {
       i = (i + 1) % LOADING_TAGLINES.length;
       el.textContent = LOADING_TAGLINES[i];
-      el.classList.remove("fade-out");
-    }, FADE_MS);
-  }, HOLD_MS + FADE_MS);
+      el.classList.remove("roll-out");
+      el.classList.add("roll-in-start"); // snap (no transition) to "waiting below"
+      void el.offsetHeight; // force layout so the browser registers that state
+      el.classList.remove("roll-in-start"); // ...then animate back up into place
+    }, ROLL_MS);
+  }, HOLD_MS + ROLL_MS);
 
   const stopWhenHidden = new MutationObserver(() => {
     if (overlay.classList.contains("hidden")) {

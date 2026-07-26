@@ -253,56 +253,68 @@ a { text-decoration: none; color: inherit; }
   animation: mark-line-in 0.6s var(--ease) 0.3s forwards;
 }
 
-/* ---------- bilingual cycling tagline (JS: initLoadingTaglineCycle) —
-   cross-fades + scales between "Perpustakaan Ibnu Sina" / "Ibnu Sina
-   Library" / "We Learn, We Care, We Protect" while the overlay is up,
-   Apple-startup style. min-height keeps the layout from jittering as the
+/* ---------- scoreboard-style cycling tagline (JS: initLoadingTaglineCycle)
+   — "Perpustakaan Ibnu Sina" / "We Learn, We Care, We Protect" /
+   "© Cikgu Rizwan Yusop" roll vertically like a split-flap departure board:
+   the outgoing phrase slides straight up and out, the incoming one slides
+   up from below into place. The wrap clips both so only one line is ever
+   visible; fixed height keeps the rest of the layout from jittering as
    text length changes between phrases. */
+.app-loading-mark-cycle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4em;
+  overflow: hidden;
+}
 .app-loading-mark-cycle {
   font-size: 19px;
   font-weight: 800;
   color: #fff;
   letter-spacing: 0.2px;
   display: inline-block;
-  min-height: 1.3em;
   opacity: 0;
   transform: translateY(6px);
   animation: mark-line-in 0.6s var(--ease) 0.1s forwards;
-  /* slow, deliberate cross-fade (matches FADE_MS in initLoadingTaglineCycle)
-     — a quick snap read as "abrupt"; this reads as a considered transition */
-  transition: opacity 0.55s ease, transform 0.55s ease;
+  transition: transform 0.48s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.4s ease;
 }
-.app-loading-mark-cycle.fade-out {
+/* outgoing: slides straight up out of the clip box */
+.app-loading-mark-cycle.roll-out {
+  transform: translateY(-120%);
   opacity: 0;
-  transform: translateY(-4px);
 }
-
-/* small gradient accent under the cycling line — a continuous shimmer
-   sweep gives it its own quiet life without needing to track text width */
-.app-loading-mark-underline {
-  display: block;
-  width: 34px;
-  height: 3px;
-  margin: 2px 0 2px;
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-  background: rgba(255,255,255,0.12);
-}
-.app-loading-mark-underline::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 50%;
-  background: linear-gradient(90deg, transparent, var(--gold), var(--red), transparent);
-  animation: underline-sweep 1.8s ease-in-out infinite;
-}
-@keyframes underline-sweep {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(300%); }
+/* incoming: snapped (no transition) to "waiting below the clip box"
+   immediately after the text swap, then .roll-out/.roll-in-start are both
+   removed on the next frame so it animates back up into place — see JS */
+.app-loading-mark-cycle.roll-in-start {
+  transition: none;
+  transform: translateY(120%);
+  opacity: 0;
 }
 @keyframes mark-line-in {
   to { opacity: 1; transform: translateY(0); }
+}
+
+.app-loading-bar {
+  width: 170px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  z-index: 1;
+}
+.app-loading-bar::after {
+  content: "";
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, var(--red), var(--gold), transparent);
+  animation: loading-bar-sweep 1.3s ease-in-out infinite;
+}
+@keyframes loading-bar-sweep {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
 }
 
 .app-loading-text {
