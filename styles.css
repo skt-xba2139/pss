@@ -291,6 +291,15 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(120%);
   opacity: 0;
 }
+/* the copyright line is a footnote, not a headline — shown noticeably
+   smaller/lighter than "Perpustakaan Ibnu Sina" / "We Learn, We Care, We
+   Protect" (toggled by JS: initLoadingTaglineCycle) */
+.app-loading-mark-cycle.is-copyright {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+}
 @keyframes mark-line-in {
   to { opacity: 1; transform: translateY(0); }
 }

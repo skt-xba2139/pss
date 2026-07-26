@@ -1132,6 +1132,9 @@ function initLoadingTaglineCycle() {
     setTimeout(() => {
       i = (i + 1) % LOADING_TAGLINES.length;
       el.textContent = LOADING_TAGLINES[i];
+      // the copyright line reads as a footnote, not a headline — shown
+      // smaller/lighter than the other two phrases via this modifier class
+      el.classList.toggle("is-copyright", LOADING_TAGLINES[i].startsWith("©"));
       el.classList.remove("roll-out");
       el.classList.add("roll-in-start"); // snap (no transition) to "waiting below"
       void el.offsetHeight; // force layout so the browser registers that state
