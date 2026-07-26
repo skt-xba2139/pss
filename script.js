@@ -1104,14 +1104,25 @@ function setAdminMode(on) {
 
 const LOADING_TAGLINES = ["Perpustakaan Ibnu Sina", "Ibnu Sina Library", "We Learn, We Care, We Protect"];
 
-/** Cross-fades the loading overlay's main line through LOADING_TAGLINES
- *  every ~1.9s for as long as the overlay is visible, then stops itself the
- *  moment appLoadingOverlay gets its "hidden" class (no point animating
- *  text nobody can see, and it would otherwise run forever in the background). */
+/** Cross-fades the loading overlay's main line through LOADING_TAGLINES for
+ *  as long as the overlay is visible, then stops itself the moment
+ *  appLoadingOverlay gets its "hidden" class (no point animating text
+ *  nobody can see, and it would otherwise run forever in the background).
+ *  Paired with MIN_LOADING_MS below (in the DOMContentLoaded handler) —
+ *  without a minimum display time, a fast demo-data load could hide the
+ *  overlay before this ever gets to cycle even once. */
 function initLoadingTaglineCycle() {
   const el = document.getElementById("appLoadingMarkCycle");
   const overlay = document.getElementById("appLoadingOverlay");
   if (!el || !overlay) return;
+  // Guard against ever running twice (e.g. a stray duplicate call) — two
+  // independent intervals toggling the same element's class out of sync
+  // is exactly what produced the stuck/smeared-looking text before.
+  if (el.dataset.cycling) return;
+  el.dataset.cycling = "true";
+
+  const HOLD_MS = 2200; // how long each phrase stays fully readable
+  const FADE_MS = 550;  // must match .app-loading-mark-cycle's CSS transition duration
 
   let i = 0;
   const timer = setInterval(() => {
@@ -1120,8 +1131,8 @@ function initLoadingTaglineCycle() {
       i = (i + 1) % LOADING_TAGLINES.length;
       el.textContent = LOADING_TAGLINES[i];
       el.classList.remove("fade-out");
-    }, 350);
-  }, 1900);
+    }, FADE_MS);
+  }, HOLD_MS + FADE_MS);
 
   const stopWhenHidden = new MutationObserver(() => {
     if (overlay.classList.contains("hidden")) {
@@ -2424,6 +2435,14 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  // Demo/MOCK data resolves almost instantly (no real network round-trip),
+  // which meant the overlay used to vanish before its spinner/logo/tagline
+  // animation ever got a chance to play — enforcing a minimum display time
+  // guarantees it's actually seen, the same way a native app's splash
+  // screen holds for at least one beat regardless of how fast it's ready.
+  const MIN_LOADING_MS = 2200;
+  const loadStart = performance.now();
+
   // Keep the loading overlay up until every section has fetched its real
   // data, so visitors never see stale placeholder content flash before the
   // live Google Sheet data arrives. A hard timeout guarantees the overlay
@@ -2449,8 +2468,11 @@ document.addEventListener("DOMContentLoaded", () => {
   Promise.race([allRendered, safetyTimeout])
     .catch((err) => console.error("Satu atau lebih seksyen gagal dimuatkan:", err))
     .then(() => {
-      document.getElementById("appLoadingOverlay").classList.add("hidden");
-      initHomeSectionSorting();
-      initNavSorting();
+      const remaining = Math.max(0, MIN_LOADING_MS - (performance.now() - loadStart));
+      setTimeout(() => {
+        document.getElementById("appLoadingOverlay").classList.add("hidden");
+        initHomeSectionSorting();
+        initNavSorting();
+      }, remaining);
     });
 });

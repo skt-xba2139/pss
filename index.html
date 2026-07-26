@@ -33,21 +33,24 @@
      data arrives. Removed by script.js once all renders resolve. -->
 <div class="app-loading-overlay" id="appLoadingOverlay">
   <div class="app-loading-halo"></div>
+
   <div class="app-loading-icon-wrap">
-    <div class="app-loading-icon-ring"></div>
-    <!-- 3D spinning crest — place the school's logo file at "logo.png" in
-         this same folder. Falls back to the old book glyph (via CSS
-         background, see .app-loading-logo-3d) if the file is missing, so a
-         broken <img> never shows on visitors' screens. -->
+    <!-- Simple floating crest — place the school's logo file at "logo.png"
+         in this same folder. No colored ring/border around it; if the file
+         is missing, onerror just hides the broken <img> and the plain
+         circle underneath (transparent — blends into the page) is all
+         that's left, instead of a jarring fallback colour. -->
     <div class="app-loading-logo-3d">
       <img src="logo.png" alt="Logo Pusat Sumber Sekolah" class="app-loading-logo-img" onerror="this.style.display='none'">
     </div>
+    <div class="app-loading-logo-shadow"></div>
   </div>
+
   <div class="app-loading-mark">
-    <span class="app-loading-mark-line app-loading-mark-cycle" id="appLoadingMarkCycle">Perpustakaan Ibnu Sina</span>
-    <span class="app-loading-mark-line app-loading-mark-line-2">SK Tangkungon Telupid</span>
+    <span class="app-loading-mark-cycle" id="appLoadingMarkCycle">Perpustakaan Ibnu Sina</span>
+    <span class="app-loading-mark-underline" id="appLoadingMarkUnderline"></span>
+    <span class="app-loading-mark-line-2">SK Tangkungon Telupid</span>
   </div>
-  <div class="app-loading-bar"></div>
   <div class="app-loading-text">Memuatkan data...</div>
 </div>
 
